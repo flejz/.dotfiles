@@ -1,17 +1,18 @@
 if [ -d "$HOME/.dotfiles" ]; then
+  echo "Removing $HOME/.dotfiles"
   rm -drf $HOME/.dotfiles
 fi
 
 # clone .dotfiles
-echo "Cloning .dotfiles"
+echo "Cloning to $HOME/.dotfiles"
 git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles &>/dev/null
 
 # load functions
 source $HOME/.dotfiles/.functionsrc
 
 # profile setup
-echo "Setting up profile"
 PROFILE_PATH=$(detect_profile)
+echo "Setting up profile $PROFILE_PATH"
 if [ -w "$PROFILE_PATH" ]; then 
   INJECTION="source $HOME/.dotfiles/.profile"
   INJECTION_EXISTS=$(cat $PROFILE_PATH | grep "$INJECTION")
@@ -24,7 +25,6 @@ if [ -w "$PROFILE_PATH" ]; then
   fi
 
   if [ -z $LINK_PATH ] && [ -z $INJECTION_EXISTS ]; then
-    echo "came here"
     echo "source $HOME/.dotfiles/.profile" >> $PROFILE_PATH
   fi
 else 
@@ -32,5 +32,5 @@ else
 fi
 
 # tmux setup
-echo "Setting up tmux"
+echo "Setting up tmux $HOME/.tmux.conf"
 ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf &>/dev/null
