@@ -1,3 +1,12 @@
+# load functions
+source $HOME/.dotfiles/.functionsrc
+
+# load rc
+RC_PATH=$(detect_rc)
+if [ -f "$RC_PATH" ]; then
+    source $RC_PATH
+fi
+
 # vim
 export VISUAL=vim
 export EDITOR=$VISUAL
