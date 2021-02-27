@@ -57,6 +57,10 @@ detect_profile() {
   esac
 }
 
+if [ -d "$HOME/.dotfiles" ]; then
+  rm -drf $HOME/.dotfiles
+fi
+
 # clone dotfiles
 git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles
 
