@@ -62,7 +62,7 @@ if [ -d "$HOME/.dotfiles" ]; then
 fi
 
 # clone dotfiles
-git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles
+git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles &>/dev/null
 
 # setting up bash profile
 PROFILE_PATH=$(detect_profile)
