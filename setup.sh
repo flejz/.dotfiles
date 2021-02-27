@@ -66,7 +66,7 @@ if [ -d "$HOME/.dotfiles" ]; then
 fi
 
 # clone .dotfiles
-echo "Cloning"
+echo "Cloning .dotfiles"
 git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles &>/dev/null
 
 # profile setup
@@ -80,9 +80,9 @@ if [ -w "$PROFILE_PATH" ]; then
     echo "source $HOME/.dotfiles/.profile" >> $PROFILE_PATH
   fi
 else 
-  ln -s $HOME/.dotfiles/.profile $PROFILE_PATH
+  ln -s $HOME/.dotfiles/.profile $PROFILE_PATH &>/dev/null
 fi
 
 # tmux setup
 echo "Setting up tmux"
-ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf
+ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf &>/dev/null
