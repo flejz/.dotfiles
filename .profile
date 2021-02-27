@@ -23,46 +23,42 @@ export NVM_DIR="$HOME/.nvm"
 
 # clever stuff
 find_up() {
-    path=$(pwd)
-    while [[ "$path" != "" && ! -e "$path/$1" ]]; do
-        path=${path%/*}
+    local FIND_PATH=$(pwd)
+    while [[ "$FIND_PATH" != "" && ! -e "$FIND_PATH/$1" ]]; do
+        FIND_PATH=${FIND_PATH%/*}
     done
-    echo "$path"
+    echo "$FIND_PATH"
 }
 
 smart_cd() {
     cd "$@";
 
-    npmrc_path=$(find_up .npmrc | tr -d '\n')
-    if [[ -s $npmrc_path/.npmrc && -r $npmrc_path/.npmrc ]]; then
+    local NPMRC_PATH=$(find_up .npmrc | tr -d '\n')
+    if [[ -s $NPMRC_PATH/.npmrc && -r $NPMRC_PATH/.npmrc ]]; then
         # do something
-        echo ".npmrc exists"
+        echo -n ""
     fi
 
-    nvmrc_path=$(find_up .nvmrc | tr -d '\n')
-    if [[ ! $nvmrc_path = *[^[:space:]]* ]]; then
-        declare default_version;
-        default_version=$(nvm version default);
+    local NVMRC_PATH=$(find_up .nvmrc | tr -d '\n')
+    if [[ ! $NVMRC_PATH = *[^[:space:]]* ]]; then
+        local NVM_DEFAULT_VERSION=$(nvm version default);
 
-        if [[ $default_version == "N/A" ]]; then
+        if [[ $NVM_DEFAULT_VERSION == "N/A" ]]; then
             nvm alias default node;
-            default_version=$(nvm version default);
+            NVM_DEFAULT_VERSION=$(nvm version default);
         fi
 
-        if [[ $(nvm current) != "$default_version" ]]; then
+        if [[ $(nvm current) != "$NVM_DEFAULT_VERSION" ]]; then
             nvm use default;
         fi
-    elif [[ -s $nvmrc_path/.nvmrc && -r $nvmrc_path/.nvmrc ]]; then
-        declare nvm_version
-        nvm_version=$(<"$nvmrc_path"/.nvmrc)
+    elif [[ -s $NVMRC_PATH/.nvmrc && -r $NVMRC_PATH/.nvmrc ]]; then
+        local NVM_VERSION=$(<"$NVMRC_PATH"/.nvmrc)
+        local LOCALLY_RESOLVED_NVM_VERSION=$(nvm ls --no-colors "$NVM_VERSION" | tail -1 | tr -d '\->*' | tr -d '[:space:]')
 
-        declare locally_resolved_nvm_version
-        locally_resolved_nvm_version=$(nvm ls --no-colors "$nvm_version" | tail -1 | tr -d '\->*' | tr -d '[:space:]')
-
-        if [[ "$locally_resolved_nvm_version" == "N/A" ]]; then
-            nvm install "$nvm_version";
-        elif [[ $(nvm current) != "$locally_resolved_nvm_version" ]]; then
-            nvm use "$nvm_version";
+        if [[ "$LOCALLY_RESOLVED_NVM_VERSION" == "N/A" ]]; then
+            nvm install "$NVM_VERSION";
+        elif [[ $(nvm current) != "$LOCALLY_RESOLVED_NVM_VERSION" ]]; then
+            nvm use "$NVM_VERSION";
         fi
     fi
 }
