@@ -41,8 +41,8 @@ detect_rc() {
 }
 
 detect_profile() {
-  RC_PATH=$(detect_rc)
-  RC=$(echo $RC_PATH | sed 's/.*\///g')
+  local RC_PATH=$(detect_rc)
+  local RC=$(echo $RC_PATH | sed 's/.*\///g')
 
   case "$RC" in
     .bashrc*)
@@ -57,5 +57,5 @@ detect_profile() {
 }
 
 is_link() {
-  [ -z $(file $@ | grep -i link) ]
+  echo $(file $@ | grep -i link | sed 's/.*\s//g')
 }

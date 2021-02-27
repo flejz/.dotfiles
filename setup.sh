@@ -16,7 +16,15 @@ if [ -w "$PROFILE_PATH" ]; then
   INJECTION="source $HOME/.dotfiles/.profile"
   INJECTION_EXISTS=$(cat $PROFILE_PATH | grep "$INJECTION")
 
-  if [ -z $INJECTION_EXISTS  ]; then
+  LINK_PATH=$(is_link "$PROFILE_PATH")
+  if [ -n $LINK_PATH ] && [ $LINK_PATH == "$HOME/.dotfiles/.profile" ]; then
+    echo "Profile $PROFILE_PATH is already a link of $LINK_PATH"
+  else 
+    echo "WARNING: Profile $PROFILE_PATH already linked to $LINK_PATH. Fix it manually"
+  fi
+
+  if [ -z $LINK_PATH ] && [ -z $INJECTION_EXISTS ]; then
+    echo "came here"
     echo "source $HOME/.dotfiles/.profile" >> $PROFILE_PATH
   fi
 else 
