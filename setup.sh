@@ -57,14 +57,20 @@ detect_profile() {
   esac
 }
 
+is_link() {
+  [ -z $(file $@ | grep -i link) ]
+}
+
 if [ -d "$HOME/.dotfiles" ]; then
   rm -drf $HOME/.dotfiles
 fi
 
-# clone dotfiles
+# clone .dotfiles
+echo "Cloning"
 git clone https://github.com/flejz/.dotfiles.git $HOME/.dotfiles &>/dev/null
 
-# setting up bash profile
+# profile setup
+echo "Setting up profile"
 PROFILE_PATH=$(detect_profile)
 if [ -w "$PROFILE_PATH" ]; then 
   INJECTION="source $HOME/.dotfiles/.profile"
@@ -76,3 +82,7 @@ if [ -w "$PROFILE_PATH" ]; then
 else 
   ln -s $HOME/.dotfiles/.profile $PROFILE_PATH
 fi
+
+# tmux setup
+echo "Setting up tmux"
+ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf
