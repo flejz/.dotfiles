@@ -22,7 +22,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # clever stuff
-find_up() {
+decease() {
+    ps aux | pgrep -i $1 | xargs kill -9
+}
+
+
+find_out() {
     local FIND_PATH=$(pwd)
     while [[ "$FIND_PATH" != "" && ! -e "$FIND_PATH/$1" ]]; do
         FIND_PATH=${FIND_PATH%/*}
@@ -33,13 +38,16 @@ find_up() {
 smart_cd() {
     cd "$@";
 
-    local NPMRC_PATH=$(find_up .npmrc | tr -d '\n')
+    local NPMRC_PATH=$(find_out .npmrc | tr -d '\n')
     if [[ -s $NPMRC_PATH/.npmrc && -r $NPMRC_PATH/.npmrc ]]; then
-        # do something
-        echo -n ""
+
+        # audibene
+        if [ -z $CODEARTIFACT_AUTH_TOKEN ]; then
+            ca_acquire
+        fi
     fi
 
-    local NVMRC_PATH=$(find_up .nvmrc | tr -d '\n')
+    local NVMRC_PATH=$(find_out .nvmrc | tr -d '\n')
     if [[ ! $NVMRC_PATH = *[^[:space:]]* ]]; then
         local NVM_DEFAULT_VERSION=$(nvm version default);
 
