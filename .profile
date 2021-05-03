@@ -36,7 +36,7 @@ find_out() {
 }
 
 smart_cd() {
-    cd "$@";
+    \cd "$@";
 
     local NPMRC_PATH=$(find_out .npmrc | tr -d '\n')
     if [[ -s $NPMRC_PATH/.npmrc && -r $NPMRC_PATH/.npmrc ]]; then
