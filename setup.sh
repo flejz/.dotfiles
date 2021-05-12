@@ -34,3 +34,7 @@ fi
 # tmux setup
 echo "Setting up tmux $HOME/.tmux.conf"
 ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf &>/dev/null
+
+# setting up tools
+echo "Setting up tools"
+ln -s $HOME/.dotfiles/tools/cpumode /usr/local/sbin/cpumode &>/dev/null
