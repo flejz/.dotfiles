@@ -40,5 +40,5 @@ echo "Setting up tools"
 ln -s $HOME/.dotfiles/tools/cpumode /usr/local/sbin/cpumode &>/dev/null
 
 if [ -d "$HOME/.vim" ]; then
-  ln -s "$HOME/.config/nvim/coc-settings.json" "$HOME/.vim/coc-settings.json"
+  ln -s "$HOME/.vim/coc-settings.json" "$HOME/.config/nvim/coc-settings.json" 
 fi
