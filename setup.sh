@@ -38,3 +38,7 @@ ln -s $HOME/.dotfiles/.tmux.conf $HOME/.tmux.conf &>/dev/null
 # setting up tools
 echo "Setting up tools"
 ln -s $HOME/.dotfiles/tools/cpumode /usr/local/sbin/cpumode &>/dev/null
+
+if [ -d "$HOME/.vim" ]; then
+  ln -s "$HOME/.config/nvim/coc-settings.json" "$HOME/.vim/coc-settings.json"
+fi
