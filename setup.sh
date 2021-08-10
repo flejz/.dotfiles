@@ -17,7 +17,7 @@ PROFILE_PATH=$(detect_profile)
 echo "Setting up profile $PROFILE_PATH"
 if [ -w "$PROFILE_PATH" ]; then 
   INJECTION="source $HOME/.dotfiles/.profile"
-  INJECTION_EXISTS=$(grep "$INJECTION" "PROFILE_PATH")
+  INJECTION_EXISTS=$(grep "$INJECTION" "$PROFILE_PATH")
 
   LINK_PATH=$(is_link "$PROFILE_PATH")
   if [ -n "$LINK_PATH" ] && [ "$LINK_PATH" == "$HOME/.dotfiles/.profile" ]; then
@@ -42,5 +42,5 @@ echo "Setting up tools"
 ln -s "$HOME/.dotfiles/tools/cpumode" /usr/local/sbin/cpumode &>/dev/null
 
 if [ -d "$HOME/.vim" ]; then
-  ln -s "$HOME/.vim/coc-settings.json" "$HOME/.config/nvim/coc-settings.json" 
+  ln -s "$HOME/.vim/coc-settings.json" "$HOME/.config/nvim/coc-settings.json" &>/dev/null
 fi
