@@ -38,14 +38,15 @@ find_out() {
 smart_cd() {
     \cd "$@";
 
-    local NPMRC_PATH=$(find_out .npmrc | tr -d '\n')
-    if [[ -s $NPMRC_PATH/.npmrc && -r $NPMRC_PATH/.npmrc ]]; then
+    
+    # local NPMRC_PATH=$(find_out .npmrc | tr -d '\n')
+    # if [[ -s $NPMRC_PATH/.npmrc && -r $NPMRC_PATH/.npmrc ]]; then
 
-        # audibene
-        if [ -z $CODEARTIFACT_AUTH_TOKEN ]; then
-            ca_acquire
-        fi
-    fi
+    #     # audibene
+    #     if [ -z $CODEARTIFACT_AUTH_TOKEN ]; then
+    #         ca_acquire
+    #     fi
+    # fi
 
     local NVMRC_PATH=$(find_out .nvmrc | tr -d '\n')
     if [[ ! $NVMRC_PATH = *[^[:space:]]* ]]; then
@@ -71,5 +72,6 @@ smart_cd() {
     fi
 }
 
+alias vim='nvim'
 alias cd='smart_cd'
 cd $PWD
