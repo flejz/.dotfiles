@@ -45,15 +45,6 @@ smart_cd() {
     local NVM_VERSION
     local LOCALLY_RESOLVED_NVM_VERSION
 
-    NPMRC_PATH=$(find_out .npmrc | tr -d '\n')
-    if [[ -s "$NPMRC_PATH/.npmrc" && -r "$NPMRC_PATH/.npmrc" ]]; then
-
-        # audibene
-        if [ -z "$CODEARTIFACT_AUTH_TOKEN" ]; then
-            ca_acquire
-        fi
-    fi
-
     NVMRC_PATH=$(find_out .nvmrc | tr -d '\n')
     if [[ ! $NVMRC_PATH = *[^[:space:]]* ]]; then
         NVM_DEFAULT_VERSION=$(nvm version default);
@@ -78,5 +69,6 @@ smart_cd() {
     fi
 }
 
+alias vim="nvim"
 alias cd="smart_cd"
 smart_cd "$PWD"
