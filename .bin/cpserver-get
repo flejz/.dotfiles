@@ -1,0 +1,4 @@
+USR=
+read -sp "pwd: " PASSWD
+ssh -i ~/.ssh/smhm kraken ./cp-cli get "$1" -u "$USR" -p "$PASSWD" | xclip -sel c -i
+echo "copied to your clipboard."

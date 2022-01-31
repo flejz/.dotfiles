@@ -42,6 +42,11 @@ echo "Setting up tools"
 ln -s "$HOME/.dotfiles/tools/cpu-mode" /usr/local/sbin/cpu-mode &>/dev/null
 ln -s "$HOME/.dotfiles/tools/restart-pulseaudio" /usr/local/sbin/restart-pulseaudio &>/dev/null
 
+# linking 
+echo "Linking coc-settings"
 if [ -d "$HOME/.vim" ]; then
   ln -s "$HOME/.vim/coc-settings.json" "$HOME/.config/nvim/coc-settings.json" &>/dev/null
 fi
+
+echo "Linking .bin (root privileges required)"
+sudo ln -s "$HOME/.dotfiles/.bin/*" /usr/local/bin/
