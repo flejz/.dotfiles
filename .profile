@@ -4,7 +4,7 @@ source "$HOME/.dotfiles/.functionsrc"
 # load rc
 RC_PATH=$(detect_rc)
 if [ -f "$RC_PATH" ]; then
-    source "$RC_PATH"
+    . "$RC_PATH"
 fi
 
 # vim
@@ -20,6 +20,10 @@ export PATH="$PATH:/usr/local/go/bin:$GOBIN"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+
+# qt
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_FONT_DPI=96 clementine
 
 # clever stuff
 decease() {
@@ -70,5 +74,4 @@ smart_cd() {
 }
 
 alias vim="nvim"
-alias cd="smart_cd"
-smart_cd "$PWD"
+
