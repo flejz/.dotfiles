@@ -1,0 +1,12 @@
+[Unit]
+Description=Sets the CPU governor on boot according to AC mode
+Requires=multi-user.target
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/home/flejz/.dotfiles/etc/power-mgmt/power.sh
+
+[Install]
+WantedBy=multi-user.target  

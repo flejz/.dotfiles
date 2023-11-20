@@ -1,0 +1,10 @@
+[Unit]
+Description=Local system resume actions
+After=suspend.target
+
+[Service]
+Type=simple
+ExecStart=/home/flejz/.dotfiles/etc/power-mgmt/power.sh
+
+[Install]
+WantedBy=suspend.target

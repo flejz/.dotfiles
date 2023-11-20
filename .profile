@@ -71,7 +71,3 @@ smart_cd() {
         fi
     fi
 }
-
-alias vim='nvim'
-alias cd='smart_cd'
-cd $PWD
