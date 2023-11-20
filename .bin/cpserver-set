@@ -1,0 +1,3 @@
+USR=
+read -sp "pwd: " PASSWD
+ssh -i ~/.ssh/smhm kraken ./cp-cli set "$1" "$2" -u "$USR" -p "$PASSWD"
