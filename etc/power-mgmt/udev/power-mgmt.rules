@@ -1,2 +1,2 @@
 SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/home/flejz/.dotfiles/etc/power-mgmt/power.sh AC"
-SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/home/flejz/.dotfiles/etc/power-mgmt/power.sh BAT"
+SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/home/flejz/.dotfiles/etc/power-mgmt/power.sh BAT"
