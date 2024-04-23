@@ -1,10 +1,22 @@
 -- Load Telescope
 local telescope = require('telescope')
 
+local function is_telescope_open()
+    local wins = vim.api.nvim_list_wins()
+    for _, win in ipairs(wins) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if vim.api.nvim_buf_get_option(buf, 'filetype') == 'TelescopePrompt' then
+            return true
+        end
+    end
+    return false
+end
+
 telescope.setup {
 	defaults = {
 		mappings = {
 			i = {
+				["<Esc>"] = require('telescope.actions').close,
 				["<C-j>"] = require("telescope.actions").move_selection_next,
 				["<C-k>"] = require("telescope.actions").move_selection_previous,
 			},
@@ -32,64 +44,97 @@ lualine.setup {
 	extensions = {}
 }
 
--- Language servers.
-local lspconfig = require('lspconfig')
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- coc mappings
+vim.api.nvim_set_keymap('i', '<C-x><C-o>', '<Cmd>call coc#refresh()<CR>', { silent = true, expr = true })
+vim.api.nvim_set_keymap('n', '<C-i>', '<Cmd>lua vim.cmd("normal! <Plug>(coc-codeaction)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '[c', '<Cmd>lua vim.cmd("normal! <Plug>(coc-diagnostic-prev)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', ']c', '<Cmd>lua vim.cmd("normal! <Plug>(coc-diagnostic-next)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'gd', '<Cmd>lua vim.cmd("normal! <Plug>(coc-definition)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'gy', '<Cmd>lua vim.cmd("normal! <Plug>(coc-type-definition)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'gi', '<Cmd>lua vim.cmd("normal! <Plug>(coc-implementation)")<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', 'gr', '<Cmd>lua vim.cmd("normal! <Plug>(coc-references)")<CR>', { silent = true })
 
 
+-- -- Language servers.
+-- local lspconfig = require('lspconfig')
+-- local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- 
+-- 
+-- 
+-- -- Configure autocompletion on type
+-- lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
+-- 		capabilities = capabilities
+-- 	})
+-- 
+-- local on_attach = function(client)
+--     require'completion'.on_attach(client)
+-- end
+-- 
+-- lspconfig.pyright.setup {}
+-- lspconfig.tsserver.setup {}
+-- lspconfig.gopls.setup {}
+-- 
+-- 
+-- lspconfig.rust_analyzer.setup({
+--     on_attach = on_attach,
+--     settings = {
+--         ["rust-analyzer"] = {
+--             imports = {
+--                 granularity = {
+--                     group = "module",
+--                 },
+--                 prefix = "self",
+--             },
+--             cargo = {
+--                 buildScripts = {
+--                     enable = true,
+--                 },
+--             },
+--             procMacro = {
+--                 enable = true
+--             },
+--         }
+--     }
+-- })
+-- 
+-- 
+-- -- Global mappings.
+-- vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+-- vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+-- vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+-- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+-- 
+-- -- Use LspAttach autocommand to only map the following keys
+-- -- after the language server attaches to the current buffer
+-- vim.api.nvim_create_autocmd('LspAttach', {
+-- 		group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+-- 		callback = function(ev)
+-- 			-- Enable completion triggered by <c-x><c-o>
+-- 			vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+-- 
+-- 			-- Buffer local mappings.
+-- 			-- See `:help vim.lsp.*` for documentation on any of the below functions
+-- 			local opts = { buffer = ev.buf }
+-- 			vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+-- 			vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+-- 			vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+-- 			vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+-- 			vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+-- 			vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+-- 			vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+-- 			vim.keymap.set('n', '<space>wl', function()
+-- 				print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+-- 			end, opts)
+-- 			vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+-- 			vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+-- 			vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+-- 			vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+-- 			vim.keymap.set('n', '<space>f', function()
+-- 				vim.lsp.buf.format { async = true }
+-- 			end, opts)
+-- 	end,
+-- })
 
--- Configure autocompletion on type
-lspconfig.util.default_config = vim.tbl_extend('force', lspconfig.util.default_config, {
-		capabilities = capabilities
-	})
-
-lspconfig.pyright.setup {}
-lspconfig.tsserver.setup {}
-lspconfig.gopls.setup {}
-lspconfig.rust_analyzer.setup {
-	-- Server-specific settings. See `:help lspconfig-setup`
-	settings = {
-		['rust-analyzer'] = {},
-	},
-}
-
-
--- Global mappings.
-vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
-
--- Use LspAttach autocommand to only map the following keys
--- after the language server attaches to the current buffer
-vim.api.nvim_create_autocmd('LspAttach', {
-		group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-		callback = function(ev)
-			-- Enable completion triggered by <c-x><c-o>
-			vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-			-- Buffer local mappings.
-			-- See `:help vim.lsp.*` for documentation on any of the below functions
-			local opts = { buffer = ev.buf }
-			vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-			vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-			vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-			vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-			vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-			vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
-			vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
-			vim.keymap.set('n', '<space>wl', function()
-				print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-			end, opts)
-			vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-			vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
-			vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
-			vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-			vim.keymap.set('n', '<space>f', function()
-				vim.lsp.buf.format { async = true }
-			end, opts)
-	end,
-})
 -- Enable syntax highlighting.
 vim.cmd('filetype plugin indent on')
 vim.cmd('syntax on')
@@ -163,9 +208,9 @@ vim.opt.virtualedit = 'block'
 vim.opt.wildmenu = true
 vim.opt.wildmode = 'full'
 
-if not vim.fn.has('nvim') then
-  vim.opt.term = 'xterm-256color'
-end
+-- if not vim.fn.has('nvim') then
+--   vim.opt.term = 'xterm-256color'
+-- end
 
 -- Set the color scheme.
 vim.cmd('colorscheme flejz')
@@ -209,61 +254,61 @@ vim.cmd('autocmd BufNewFile,BufRead requirements*.txt set syntax=python')
 vim.cmd('autocmd FileType make setlocal noexpandtab')
 
 -- ALE settings
-vim.g.ale_sign_style_error = '>>'
-vim.g.ale_sign_style_warning = '--'
-vim.g.ale_sign_error = '>>'
-vim.g.ale_sign_warning = '--'
+-- vim.g.ale_sign_style_error = '>>'
+-- vim.g.ale_sign_style_warning = '--'
+-- vim.g.ale_sign_error = '>>'
+-- vim.g.ale_sign_warning = '--'
+-- 
+-- vim.g.ale_set_highlights = 1
+-- vim.g.ale_lint_on_insert_leave = 1
+-- vim.g.ale_lint_on_save = 1
+-- vim.g.ale_lint_on_enter = 1
+-- vim.g.ale_completion_autoimport = 1
+-- vim.g.ale_completion_enabled = 1
+-- vim.g.ale_completion_trigger_on_edit = 1
+-- vim.g.ale_typescript_standard_use_global = 1
+-- vim.g.ale_typescript_tsserver_use_global = 1
+-- vim.g.ale_fixers = {
+-- 	['*'] = { 'remove_trailing_lines', 'trim_whitespace' },
+-- 	['javascript'] = { 'eslint' },
+-- 	['typescript'] = { 'eslint' },
+-- 	['typescriptreact'] = { 'eslint' },
+-- 	['go'] = { 'gopls' },
+-- 	['rust'] = { 'rust-analyzer' }
+-- }
+-- vim.g.ale_linters = {
+-- 	['javascript'] = { 'eslint' },
+-- 	['typescript'] = { 'tsserver', 'prettier' },
+-- 	['typescriptreact'] = { 'tsserver' },
+-- 	['go'] = { 'gopls' },
+-- 	['rust'] = { 'rust-analyzer' }
+-- }
+-- 
+-- vim.g.ale_cpp_ccls_init_options = {
+-- 	['cache'] = {
+-- 		['directory'] = '/tmp/ccls/cache'
+-- 	}
+-- }
+-- 
+-- -- Key mappings
+-- vim.api.nvim_set_keymap('n', '<silent> <C-j>', '<Plug>(ale_next_wrap)', {})
+-- vim.api.nvim_set_keymap('n', '<silent> <C-k>', '<Plug>(ale_previous_wrap)', {})
+-- vim.api.nvim_set_keymap('n', '<C-f>', ':ALEFix<CR>', { noremap = true })
+-- vim.api.nvim_set_keymap('i', '<C-f>', '<Esc>:ALEFix<CR>', { noremap = true })
 
-vim.g.ale_set_highlights = 1
-vim.g.ale_lint_on_insert_leave = 1
-vim.g.ale_lint_on_save = 1
-vim.g.ale_lint_on_enter = 1
-vim.g.ale_completion_autoimport = 1
-vim.g.ale_completion_enabled = 1
-vim.g.ale_completion_trigger_on_edit = 1
-vim.g.ale_typescript_standard_use_global = 1
-vim.g.ale_typescript_tsserver_use_global = 1
-vim.g.ale_fixers = {
-	['*'] = { 'remove_trailing_lines', 'trim_whitespace' },
-	['javascript'] = { 'eslint' },
-	['typescript'] = { 'eslint' },
-	['typescriptreact'] = { 'eslint' },
-	['go'] = { 'gopls' },
-	['rust'] = { 'rust-analyzer' }
-}
-vim.g.ale_linters = {
-	['javascript'] = { 'eslint' },
-	['typescript'] = { 'tsserver', 'prettier' },
-	['typescriptreact'] = { 'tsserver' },
-	['go'] = { 'gopls' },
-	['rust'] = { 'rust-analyzer' }
-}
-
-vim.g.ale_cpp_ccls_init_options = {
-	['cache'] = {
-		['directory'] = '/tmp/ccls/cache'
-	}
-}
-
--- Key mappings
-vim.api.nvim_set_keymap('n', '<silent> <C-j>', '<Plug>(ale_next_wrap)', {})
-vim.api.nvim_set_keymap('n', '<silent> <C-k>', '<Plug>(ale_previous_wrap)', {})
-vim.api.nvim_set_keymap('n', '<C-f>', ':ALEFix<CR>', { noremap = true })
-vim.api.nvim_set_keymap('i', '<C-f>', '<Esc>:ALEFix<CR>', { noremap = true })
-
-local cmp = require('cmp')
-
-cmp.setup({
-		mapping = {
-			['<C-b>'] = cmp.mapping.scroll_docs(-4),
-			['<C-f>'] = cmp.mapping.scroll_docs(4),
-			['<C-Space>'] = cmp.mapping.complete(),
-			['<C-e>'] = cmp.mapping.close(),
-			['<CR>'] = cmp.mapping.confirm({ select = true }),
-		},
-		sources = {
-			{ name = 'nvim_lsp' },
-			{ name = 'buffer' },
-			{ name = 'path' },
-		},
-	})
+-- local cmp = require('cmp')
+-- 
+-- cmp.setup({
+-- 		mapping = {
+-- 			['<C-b>'] = cmp.mapping.scroll_docs(-4),
+-- 			['<C-f>'] = cmp.mapping.scroll_docs(4),
+-- 			['<C-Space>'] = cmp.mapping.complete(),
+-- 			['<C-e>'] = cmp.mapping.close(),
+-- 			['<CR>'] = cmp.mapping.confirm({ select = true }),
+-- 		},
+-- 		sources = {
+-- 			{ name = 'nvim_lsp' },
+-- 			{ name = 'buffer' },
+-- 			{ name = 'path' },
+-- 		},
+-- 	})
