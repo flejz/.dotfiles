@@ -1,15 +1,12 @@
 # load functions
 source "$HOME/.dotfiles/.functionsrc"
+source "$HOME/.dotfiles/nvim/.nvimrc"
 
 # load rc
 RC_PATH=$(detect_rc)
 if [ -f "$RC_PATH" ]; then
     . "$RC_PATH"
 fi
-
-# vim
-export VISUAL=vim
-export EDITOR="$VISUAL"
 
 # go
 export GOPATH="$HOME/go"
