@@ -1,9 +1,5 @@
 hi clear
-
 let g:colors_name="flejz"
-
-let c_light_green="#A6E22E"
-let c_light_blue="#66D9EF"
 
 hi Boolean         guifg=#AE81FF
 hi Character       guifg=#E6DB74
@@ -11,7 +7,7 @@ hi Number          guifg=#AE81FF
 hi String          guifg=#E6DB74
 hi Conditional     guifg=#F92672               gui=bold
 hi Constant        guifg=#AE81FF               gui=bold
-hi Conceal         guifg=#000000               
+hi Conceal         guifg=#000000                                " hints and non used variables
 hi Cursor          guifg=#000000 guibg=#FAFAFA
 hi iCursor         guifg=#000000 guibg=#FAFAFA
 hi Debug           guifg=#BCA3A3               gui=bold
@@ -39,7 +35,7 @@ hi Label           guifg=#E6DB74               gui=none
 hi Macro           guifg=#C4BE89               gui=italic
 hi SpecialKey      guifg=#66D9EF               gui=italic
 
-hi MatchParen      guifg=#66D9EF guibg=#0F0F0F gui=bold
+hi MatchParen      guifg=#66D9EF guibg=#0F0F0F gui=bold         " matching blocks () [] {}
 hi ModeMsg         guifg=#E6DB74
 hi MoreMsg         guifg=#E6DB74
 hi Operator        guifg=#66D9EF guibg=#0F0F0F
@@ -74,7 +70,7 @@ hi StorageClass    guifg=#FD971F               gui=italic
 hi Structure       guifg=#66D9EF
 hi Tag             guifg=#F92672               gui=italic
 hi Title           guifg=#ef5939
-hi Todo            guifg=#F92672 guibg=bg      gui=bold
+hi Todo            guifg=#F92672 guibg=bg      gui=bold         " TODO text in a file
 
 hi Typedef         guifg=#66D9EF
 hi Type            guifg=#66D9EF               gui=none
@@ -82,7 +78,7 @@ hi Underlined      guifg=#808080               gui=underline
 
 hi VertSplit       guifg=#808080 guibg=#080808 gui=bold
 hi VisualNOS                     guibg=#403D3D
-hi Visual                        guibg=#403D3D
+hi Visual                        guibg=#403D3D                  " Visual mode
 hi WarningMsg      guifg=#FFFFFF guibg=#333333 gui=bold
 hi WildMenu        guifg=#66D9EF guibg=#000000
 
