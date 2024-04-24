@@ -12,36 +12,49 @@ local function is_telescope_open()
     return false
 end
 
+local actions = require('telescope.actions')
+local action_layout = require("telescope.actions.layout")
+
 telescope.setup {
 	defaults = {
 		mappings = {
 			i = {
-				["<Esc>"] = require('telescope.actions').close,
-				["<C-j>"] = require("telescope.actions").move_selection_next,
-				["<C-k>"] = require("telescope.actions").move_selection_previous,
+				["<C-s>"] = actions.cycle_previewers_next,
+				["<C-a>"] = actions.cycle_previewers_prev,
+				["<Esc>"] = actions.close,
+				["<A-j>"] = actions.preview_scrolling_down,
+				["<A-k>"] = actions.preview_scrolling_up,
+				["<C-d>"] = actions.delete_buffer + actions.move_to_top,
+				["<C-j>"] = actions.move_selection_next,
+				["<C-k>"] = actions.move_selection_previous,
+				["<C-u>"] = false,
+				["<M-p>"] = action_layout.toggle_preview
 			},
 		},
 	},
 }
 
-vim.api.nvim_set_keymap('n', '<C-p>', '<cmd>lua require("telescope.builtin").find_files()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>', '<cmd>lua require("telescope.builtin").live_grep()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-p>',  '<cmd>lua require("telescope.builtin").find_files()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-f>f', '<cmd>lua require("telescope.builtin").live_grep()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-f>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-f>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>', { noremap = true, silent = true })
 
 -- Lualine
 local lualine = require('lualine')
 lualine.setup {
 	options = {
 		icons_enabled = false,
+		component_separators = { left = '', right = '' },
+		section_separators = { left = '', right = '' },
 	},
 	sections = {
-		lualine_a = {'mode'},
-		lualine_b = {'branch'},
-		lualine_c = {'filename'},
-		lualine_x = {'encoding', 'fileformat', 'filetype'},
-		lualine_y = {'progress'},
-		lualine_z = {'location'}
+		lualine_a = {	'mode' },
+		lualine_b = {	'branch' },
+		lualine_c = { {	'filename', path = 1} },
+		lualine_x = { {	'diagnostics', sources = { 'coc' } } },
+		lualine_y = {	'progress', 'location' },
+		lualine_z = {	'encoding', 'filetype' },
 	},
-	extensions = {}
 }
 
 -- coc mappings
