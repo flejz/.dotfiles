@@ -19,12 +19,12 @@ hi DiffDelete      guifg=#960050 guibg=#1E0010
 hi DiffText                      guibg=#4C4745 gui=italic,bold
 
 hi Directory       guifg=#A6E22E               gui=bold
-hi Error           guifg=#E6DB74 guibg=#1E0010
+hi Error           guifg=#E6DB74 guibg=#0F0F0F
 hi ErrorMsg        guifg=#F92672 guibg=#0F0F0F gui=bold
 hi Exception       guifg=#A6E22E               gui=bold
 hi Float           guifg=#AE81FF
 hi FoldColumn      guifg=#465457 guibg=#000000
-hi Folded          guifg=#66D9EF guibg=#0F0F0F
+hi Folded          guifg=#66D9EF guibg=#030303
 hi Function        guifg=#A6E22E
 hi Identifier      guifg=#FD971F                                " used for many things, from const to types
 hi Ignore          guifg=#808080 guibg=bg
@@ -35,10 +35,10 @@ hi Label           guifg=#E6DB74               gui=none
 hi Macro           guifg=#C4BE89               gui=italic
 hi SpecialKey      guifg=#66D9EF               gui=italic
 
-hi MatchParen      guifg=#66D9EF guibg=#0F0F0F gui=bold         " matching blocks () [] {}
+hi MatchParen      guifg=#66D9EF guibg=#030303 gui=bold         " matching blocks () [] {}
 hi ModeMsg         guifg=#E6DB74
 hi MoreMsg         guifg=#E6DB74
-hi Operator        guifg=#66D9EF guibg=#0F0F0F
+hi Operator        guifg=#66D9EF
 
 " complete menu
 hi Pmenu           guifg=#66D9EF guibg=#000000
@@ -53,7 +53,7 @@ hi Repeat          guifg=#F92672               gui=bold
 hi Search          guifg=#000000 guibg=#FFE792
 
 " marks
-hi SignColumn      guifg=#A6E22E guibg=#0F0F0F
+hi SignColumn      guifg=#FF0000 guibg=#030303
 hi SpecialChar     guifg=#F92672               gui=bold
 hi SpecialComment  guifg=#7E8E91               gui=bold
 hi Special         guifg=#66D9EF guibg=bg      gui=italic
@@ -79,20 +79,20 @@ hi Underlined      guifg=#808080               gui=underline
 hi VertSplit       guifg=#808080 guibg=#080808 gui=bold
 hi VisualNOS                     guibg=#403D3D
 hi Visual                        guibg=#403D3D                  " Visual mode
-hi WarningMsg      guifg=#FFFFFF guibg=#333333 gui=bold
+hi WarningMsg      guifg=#00FF00 guibg=#333333 gui=bold
 hi WildMenu        guifg=#66D9EF guibg=#000000
 
 hi TabLineFill     guifg=#232526 guibg=#726D6D
 hi TabLine         guifg=#CACACA guibg=#232526 gui=none
-hi TabLineSel      guifg=#FAFAFA guibg=#0F0F0F gui=bold
+hi TabLineSel      guifg=#FAFAFA guibg=#030303 gui=bold
 
-hi Normal          guifg=#FAFAFA guibg=#0F0F0F
+hi Normal          guifg=#FAFAFA guibg=#030303
 hi Comment         guifg=#C2C2C2
 hi CursorLine                    guibg=#293739
 hi CursorLineNr    guifg=#FD971F               gui=none
 hi CursorColumn                  guibg=#293739
 hi ColorColumn                   guibg=#232526
-hi LineNr          guifg=#CACACA guibg=#0F0F0F
+hi LineNr          guifg=#CACACA guibg=#030303
 hi NonText         guifg=#465457
 hi SpecialKey      guifg=#465457
 
