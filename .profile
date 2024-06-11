@@ -22,6 +22,10 @@ export NVM_DIR="$HOME/.nvm"
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_FONT_DPI=96 clementine
 
+# terminal
+export PS1="\u@\h:\w$ "
+export EDITOR="$(which vi)"
+
 # clever stuff
 decease() {
     ps aux | pgrep -i "$1" | xargs kill -9
