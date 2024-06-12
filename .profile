@@ -26,6 +26,9 @@ export QT_FONT_DPI=96 clementine
 export PS1="\u@\h:\w$ "
 export EDITOR="$(which vi)"
 
+# gpg tty
+export GPG_TTY="$(tty)"
+
 # clever stuff
 decease() {
     ps aux | pgrep -i "$1" | xargs kill -9
