@@ -7,7 +7,7 @@ hi Number          guifg=#AE81FF
 hi String          guifg=#E6DB74
 hi Conditional     guifg=#F92672               gui=bold
 hi Constant        guifg=#AE81FF               gui=bold
-hi Conceal         guifg=#000000                                " hints and non used variables
+hi Conceal         guifg=#89807d guibg=#4c4745                  " hints and non used variables
 hi Cursor          guifg=#000000 guibg=#FAFAFA
 hi iCursor         guifg=#000000 guibg=#FAFAFA
 hi Debug           guifg=#BCA3A3               gui=bold
