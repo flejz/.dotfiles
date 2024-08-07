@@ -2,6 +2,7 @@
   "codeLens.enable": true,
   "coc.preferences.extensionUpdateCheck": "daily",
   "coc.preferences.formatOnType": false,
+  "coc.preferences.formatOnSaveFiletypes": ["*"],
   "coc.source.around.firstMatch": false,
   "coc.source.file.ignoreHidden": false,
   "clangd.arguments": ["--query-driver=/usr/bin/clang++", "--background-index"],
