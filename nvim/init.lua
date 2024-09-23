@@ -238,10 +238,6 @@ vim.api.nvim_set_keymap('n', '<S-Tab>', 'gT', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'x', '"_x', { noremap = true })
 vim.api.nvim_set_keymap('n', 'X', '"_x', { noremap = true })
 
--- Edit and source vim config file in a new tab.
-vim.api.nvim_set_keymap('n', '<Leader>ev', ':tabnew $HOME/.vim/vimrc<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>sv', ':source $MYVIMRC<CR>', { noremap = true })
-
 -- Toggle spell check.
 vim.api.nvim_set_keymap('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
 
