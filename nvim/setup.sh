@@ -14,18 +14,18 @@ notify_sudo() {
 # download and copy
 install_nvim() {
   notify_sudo
-  if [ -d "/opt/nvim-linux64" ]; then
-    sudo rm -drf /opt/nvim-linux64
+  if [ -d "/opt/nvim-linux-x86_64" ]; then
+    sudo rm -drf /opt/nvim-linux-x86_64
   fi
   echo "Downloading nvim..."
-  wget -q --show-progress https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+  wget -q --show-progress https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
   echo "Extracting nvim"
-  sudo tar -C /opt -xzvf nvim-linux64.tar.gz
+  sudo tar -C /opt -xzvf nvim-linux-x86_64.tar.gz
   echo "Nvim installed"
-  rm nvim-linux64.tar.gz*
+  rm nvim-linux-x86_64.tar.gz*
 }
 
-if [ -d "/opt/nvim-linux64" ]; then
+if [ -d "/opt/nvim-linux-x86_64" ]; then
   read -rp "Would you like to update neovim? (yes/no): " INSTALL
 else 
   INSTALL="yes"
