@@ -1,4 +1,4 @@
--- General
+-- general
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.o.termguicolors = true
@@ -71,6 +71,7 @@ vim.opt.wildmenu = true
 vim.opt.wildmode = 'full'
 
 -- basic mappings
+
 -- key mapping for tab navigation
 vim.api.nvim_set_keymap('n', '<Tab>', 'gt', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<S-Tab>', 'gT', { noremap = true, silent = true })
@@ -86,6 +87,7 @@ vim.api.nvim_set_keymap('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', '<F7>', ':set list!<CR>', { noremap = true })
 
 -- basic autocommands
+
 -- set the color scheme.
 vim.cmd [[colorscheme flejz]]
 
@@ -100,7 +102,6 @@ vim.cmd [[autocmd InsertLeave * silent! set nopaste]]
 
 -- format on save
 vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
-
 
 -- lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -194,10 +195,9 @@ vim.lsp.config["lua_ls"] = {
 }
 vim.lsp.enable("lua_ls")
 
--- autocmd
+-- enable inlay hints automatically on rust buffers
 vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEnter" }, {
   callback = function(args)
-		-- enable inlay hints automatically on rust buffers
     local bufnr = args.buf
     if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
       vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
@@ -205,9 +205,9 @@ vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEn
   end,
 })
 
+-- on hold, show diagnostics in a float; close when moving
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   callback = function()
-		-- on hold, show diagnostics in a float; close when moving
     vim.diagnostic.open_float(nil, {
       focusable = false,
       border = "rounded",
@@ -217,13 +217,15 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   end,
 })
 
--- rustaceanvim (rust + rust-analyzer)
+-- rustaceanvim (rust + rust-analyzer) 
+-- this plugin auto-wires rust_analyzer via lspconfig for rust buffers.
+-- it also provides extra tools like inlay hints, hover actions, runnables, etc.
 vim.g.rustaceanvim = {
   -- server: rust-analyzer settings
   server = {
     on_attach = function(client, bufnr)
       on_attach(client, bufnr)
-      -- Extra Rust-specific keymaps
+      -- extra rust-specific keymaps
       local map = function(mode, lhs, rhs, desc)
         vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
       end
@@ -232,14 +234,19 @@ vim.g.rustaceanvim = {
       vim.keymap.set(
         "n",
         "<leader>a",
-        function()
-          vim.cmd.RustLsp('codeAction') -- supports rust-analyzer's grouping
-        end,
+        function() vim.cmd.RustLsp('codeAction') end,
         { silent = true, buffer = bufnr, desc = "Rust Grouping" }
       )
 
-      map("n", "<leader>rh", function()
-        vim.cmd.RustLsp("hover actions")
+      vim.keymap.set(
+        "n",
+        "ga",
+        function() vim.cmd.RustLsp({ 'hover', 'actions' }) end,
+        { silent = true, buffer = bufnr, desc = "Rust Grouping" }
+      )
+
+      map("n", "<leader>ha", function()
+        vim.cmd.RustLsp({ 'hover', 'actions' })
       end, "Rust Hover Actions")
 
       map("n", "<leader>rr", function()
@@ -288,6 +295,7 @@ vim.g.rustaceanvim = {
     },
   },
 
+  -- tools ui tweaks (optional)
   tools = {
     hover_actions = {
       replace_builtin_hover = true,
@@ -298,10 +306,11 @@ vim.g.rustaceanvim = {
   -- dap (codelldb) is auto-detected below via mason-nvim-dap
 }
 
+-- time before the popup
 vim.o.updatetime = 250
 
 
--- completion
+-- ---------- completion ----------
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 require("luasnip.loaders.from_vscode").lazy_load()
@@ -369,12 +378,13 @@ require("nvim-treesitter.configs").setup({
 local mason_dap = require("mason-nvim-dap")
 mason_dap.setup({
   ensure_installed = { "codelldb" },
-  -- You can add custom per-adapter handlers here if you want.
+  -- add custom per-adapter handlers here if needed
   -- handlers = {
   --   function(config) mason_dap.default_setup(config) end,
   -- }
 })
 
+-- handy dap mappings
 local dap = require("dap")
 vim.keymap.set("n", "<F5>", dap.continue, { desc = "DAP Continue" })
 vim.keymap.set("n", "<F10>", dap.step_over, { desc = "DAP Step Over" })
@@ -385,14 +395,15 @@ vim.keymap.set("n", "<leader>dB", function()
   dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
 end, { desc = "DAP Conditional BP" })
 
--- basic diagnostic symbols (optional)
+-- ui niceties
+-- basic diagnostic symbols (optional) - deprecated
 local signs = { Error = "E ", Warn = "W ", Hint = "H ", Info = "I " }
 for type, icon in pairs(signs) do
   local hl = "DiagnosticSign" .. type
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 
--- telescope
+-- load telescope
 local telescope = require('telescope')
 
 local function is_telescope_open()
@@ -437,13 +448,14 @@ vim.api.nvim_set_keymap('n', '<C-f>b', '<cmd>lua require("telescope.builtin").bu
 vim.api.nvim_set_keymap('n', '<C-f>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>',
   { noremap = true, silent = true })
 
--- Lualine
+-- lualine
 local lualine = require('lualine')
 lualine.setup {
   options = {
     icons_enabled = false,
     component_separators = { left = '', right = '' },
     section_separators = { left = '', right = '' },
+    theme = "powerline_dark",
   },
   sections = {
     lualine_a = { 'mode' },
