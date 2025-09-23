@@ -40,6 +40,9 @@ hi ModeMsg         guifg=#E6DB74
 hi MoreMsg         guifg=#E6DB74
 hi Operator        guifg=#66D9EF
 
+" LSP
+hi LspInlayHint    guifg=#A3A3A3
+
 " complete menu
 hi Pmenu           guifg=#66D9EF guibg=#000000
 hi PmenuSel                      guibg=#808080
@@ -62,6 +65,7 @@ if has("spell")
     hi SpellCap    guisp=#7070F0 gui=undercurl
     hi SpellLocal  guisp=#70F0F0 gui=undercurl
     hi SpellRare   guisp=#FFFFFF gui=undercurl
+
 endif
 hi Statement       guifg=#F92672               gui=bold
 hi StatusLine      guifg=#455354 guibg=#808080
@@ -98,3 +102,5 @@ hi SpecialKey      guifg=#465457
 
 
 set background=dark
+
+

@@ -93,5 +93,12 @@
       "rootPatterns": ["Cargo.toml", ".git/"],
       "progressOnInitialization": true
     }
-  }
+  },
+  "zig.enabled": true,
+  "zig.startUpMessage": true,
+  "zig.path": "zls",
+  "zig.debugLog": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
 }
