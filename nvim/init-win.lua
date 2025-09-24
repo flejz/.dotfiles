@@ -206,6 +206,10 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 
 -- color scheme
 vim.cmd("colorscheme vscode")
+vim.api.nvim_set_hl(0, "Normal", { bg = "#030303" })
+vim.api.nvim_set_hl(0, "SignColumn", { bg = "#030303" })
+vim.api.nvim_set_hl(0, "LineNr", { fg = "#5A5A5A", bg = "#030303" })
+vim.api.nvim_set_hl(0, "TabLineSel", { bg = "#030303" })
 vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#A3A3A3" })
 
 -- enable syntax highlighting.
