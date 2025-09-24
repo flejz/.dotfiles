@@ -1,15 +1,13 @@
 -- general
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
 vim.o.termguicolors = true
 vim.o.number = true
 vim.o.relativenumber = false
 vim.o.updatetime = 250
 vim.o.signcolumn = "yes"
-
--- enable syntax highlighting.
-vim.cmd('filetype plugin indent on')
-vim.cmd('syntax on')
+vim.o.background = "dark"
 
 -- basic settings
 vim.opt.autoindent = true
@@ -86,23 +84,6 @@ vim.api.nvim_set_keymap('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
 -- toggle visually showing all whitespace characters.
 vim.api.nvim_set_keymap('n', '<F7>', ':set list!<CR>', { noremap = true })
 
--- basic autocommands
-
--- set the color scheme.
-vim.cmd [[colorscheme flejz]]
-
--- auto-resize splits when vim gets resized.
-vim.cmd [[autocmd VimResized * wincmd =]]
-
--- update a buffer's contents on focus if it changed outside of vim.
-vim.cmd [[autocmd FocusGained,BufEnter * :checktime]]
-
--- unset paste on insertleave.
-vim.cmd [[autocmd InsertLeave * silent! set nopaste]]
-
--- format on save
-vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
-
 -- lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -131,7 +112,7 @@ require("lazy").setup({
   { "L3MON4D3/LuaSnip" },
 
   -- best-in-class rust tooling (hover, inlay hints, code actions, runnables)
-  { "mrcjkb/rustaceanvim", version = '^6', lazy = false },
+  { "mrcjkb/rustaceanvim",              version = '^6',     lazy = false },
 
   -- completion
   { "hrsh7th/nvim-cmp" },
@@ -151,6 +132,9 @@ require("lazy").setup({
 
   -- dap (debugging)
   { "mfussenegger/nvim-dap" },
+
+  -- theme
+  { "Mofiqul/vscode.nvim" },
 })
 
 -- mason setup
@@ -217,7 +201,28 @@ vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
   end,
 })
 
--- rustaceanvim (rust + rust-analyzer) 
+
+-- color scheme
+vim.cmd("colorscheme vscode")
+vim.api.nvim_set_hl(0, "LspInlayHint", { fg="#A3A3A3" })
+
+-- enable syntax highlighting.
+vim.cmd("filetype plugin indent on")
+vim.cmd("syntax on")
+
+-- auto-resize splits when vim gets resized.
+vim.cmd("autocmd VimResized * wincmd =")
+
+-- update a buffer's contents on focus if it changed outside of vim.
+vim.cmd("autocmd FocusGained,BufEnter * :checktime")
+
+-- unset paste on insertleave.
+vim.cmd("autocmd InsertLeave * silent! set nopaste")
+
+-- format on save
+vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.format()")
+
+-- rustaceanvim (rust + rust-analyzer)
 -- this plugin auto-wires rust_analyzer via lspconfig for rust buffers.
 -- it also provides extra tools like inlay hints, hover actions, runnables, etc.
 vim.g.rustaceanvim = {
@@ -455,7 +460,7 @@ lualine.setup {
     icons_enabled = false,
     component_separators = { left = '', right = '' },
     section_separators = { left = '', right = '' },
-    theme = "powerline_dark",
+    theme = "vscode",
   },
   sections = {
     lualine_a = { 'mode' },
