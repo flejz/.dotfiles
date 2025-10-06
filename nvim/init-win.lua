@@ -2,13 +2,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-vim.o.termguicolors = true
-vim.o.number = true
-vim.o.relativenumber = false
-vim.o.updatetime = 250
-vim.o.signcolumn = "yes"
-vim.o.background = "dark"
-
 -- basic settings
 vim.opt.autoindent = true
 vim.opt.autoread = true
@@ -69,21 +62,44 @@ vim.opt.virtualedit = 'block'
 vim.opt.wildmenu = true
 vim.opt.wildmode = 'full'
 
+-- overrides
+vim.o.termguicolors = true
+vim.o.number = true
+vim.o.relativenumber = false
+vim.o.updatetime = 250
+vim.o.signcolumn = "yes"
+vim.o.background = "dark"
+vim.o.updatetime = 250 -- time before the popup
+vim.o.completeopt = "menu,menuone,noselect"
+
 -- basic mappings
+-- config handling
+vim.keymap.set("n", "<C-o>", function()
+  vim.cmd("edit " .. vim.fn.stdpath("config") .. "/init.lua")
+end, { desc = "Open init.lua" })
+
+vim.keymap.set("n", "<C-o>r", function()
+  dofile(vim.fn.stdpath("config") .. "/init.lua")
+  vim.notify("Neovim config reloaded!", vim.log.levels.INFO)
+end, { desc = "Reload init.lua" })
 
 -- key mapping for tab navigation
-vim.api.nvim_set_keymap('n', '<Tab>', 'gt', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<S-Tab>', 'gT', { noremap = true, silent = true })
+vim.keymap.set('n', '<Tab>', 'gt', { noremap = true, silent = true })
+vim.keymap.set('n', '<S-Tab>', 'gT', { noremap = true, silent = true })
 
 -- prevent x from overriding what's in the clipboard.
-vim.api.nvim_set_keymap('n', 'x', '"_x', { noremap = true })
-vim.api.nvim_set_keymap('n', 'X', '"_x', { noremap = true })
+vim.keymap.set('n', 'x', '"_x', { noremap = true })
+vim.keymap.set('n', 'X', '"_x', { noremap = true })
 
 -- toggle spell check.
-vim.api.nvim_set_keymap('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
+vim.keymap.set('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
 
 -- toggle visually showing all whitespace characters.
-vim.api.nvim_set_keymap('n', '<F7>', ':set list!<CR>', { noremap = true })
+vim.keymap.set('n', '<F7>', ':set list!<CR>', { noremap = true })
+
+-- comment
+vim.keymap.set("n", "<leader>c", "<S-v>gc", { remap = true })
+vim.keymap.set("v", "<leader>c", "gc", { remap = true })
 
 -- lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -120,7 +136,7 @@ require("lazy").setup({
   { "hrsh7th/cmp-nvim-lsp" },
   { "L3MON4D3/LuaSnip" },
   { "saadparwaiz1/cmp_luasnip" },
-  { "rafamadriz/friendly-snippets" },
+  -- { "rafamadriz/friendly-snippets" },
 
   -- syntax & ui niceties
   { "nvim-telescope/telescope.nvim" },
@@ -145,7 +161,7 @@ require("mason-lspconfig").setup({
   ensure_installed = {
     "lua_ls",
   },
-  automatic_installation = false,
+  automatic_installation = true,
 })
 
 -- capabilities for nvim-cmp
@@ -160,12 +176,12 @@ local on_attach = function(_, bufnr)
   map("n", "gd", vim.lsp.buf.definition, "Goto Definition")
   map("n", "gr", vim.lsp.buf.references, "References")
   map("n", "gi", vim.lsp.buf.implementation, "Goto Implementation")
-  map("n", "<leader>rn", vim.lsp.buf.rename, "Rename")
-  map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code Action")
+  map("n", "<leader>r", vim.lsp.buf.rename, "Rename")
+  map({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, "Code Action")
   map("n", "<leader>e", vim.diagnostic.open_float, "Line Diagnostics")
   map("n", "[d", vim.diagnostic.goto_prev, "Prev Diagnostic")
   map("n", "]d", vim.diagnostic.goto_next, "Next Diagnostic")
-  map("n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, "Format")
+  -- map("n", "<leader>", function() vim.lsp.buf.format({ async = true }) end, "Format")
 end
 
 
@@ -180,53 +196,6 @@ vim.lsp.config["lua_ls"] = {
   },
 }
 vim.lsp.enable("lua_ls")
-
--- enable inlay hints automatically on rust buffers
-vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEnter" }, {
-  callback = function(args)
-    local bufnr = args.buf
-    if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
-      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-    end
-  end,
-})
-
--- on hold, show diagnostics in a float; close when moving
-vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-  callback = function()
-    vim.diagnostic.open_float(nil, {
-      focusable = false,
-      border = "rounded",
-      source = "if_many",
-      scope = "cursor",
-    })
-  end,
-})
-
-
--- color scheme
-vim.cmd("colorscheme vscode")
-vim.api.nvim_set_hl(0, "Normal", { bg = "#030303" })
-vim.api.nvim_set_hl(0, "SignColumn", { bg = "#030303" })
-vim.api.nvim_set_hl(0, "LineNr", { fg = "#5A5A5A", bg = "#030303" })
-vim.api.nvim_set_hl(0, "TabLineSel", { bg = "#030303" })
-vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#A3A3A3" })
-
--- enable syntax highlighting.
-vim.cmd("filetype plugin indent on")
-vim.cmd("syntax on")
-
--- auto-resize splits when vim gets resized.
-vim.cmd("autocmd VimResized * wincmd =")
-
--- update a buffer's contents on focus if it changed outside of vim.
-vim.cmd("autocmd FocusGained,BufEnter * :checktime")
-
--- unset paste on insertleave.
-vim.cmd("autocmd InsertLeave * silent! set nopaste")
-
--- format on save
-vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.format()")
 
 -- rustaceanvim (rust + rust-analyzer)
 -- this plugin auto-wires rust_analyzer via lspconfig for rust buffers.
@@ -289,7 +258,12 @@ vim.g.rustaceanvim = {
       ["rust-analyzer"] = {
         cargo = {
           allFeatures = true,
+          allTargets = false,
         },
+        -- check = {
+        --   allTargets = false,
+        --   extraArgs = { "--no-deps" },
+        -- },
         checkOnSave = true,
         -- inlayHints = {
         --   typeHints = { enable = true },
@@ -316,12 +290,63 @@ vim.g.rustaceanvim = {
 
   -- dap (codelldb) is auto-detected below via mason-nvim-dap
 }
-
--- time before the popup
-vim.o.updatetime = 250
+--
 
 
--- ---------- completion ----------
+-- color scheme
+vim.cmd("colorscheme vscode")
+vim.api.nvim_set_hl(0, "Normal", { bg = "#030303" })
+vim.api.nvim_set_hl(0, "SignColumn", { bg = "#030303" })
+vim.api.nvim_set_hl(0, "LineNr", { fg = "#5A5A5A", bg = "#030303" })
+vim.api.nvim_set_hl(0, "TabLineSel", { bg = "#030303" })
+vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#A3A3A3" })
+
+-- enable syntax highlighting.
+vim.cmd("filetype plugin indent on")
+vim.cmd("syntax on")
+
+-- auto-resize splits when vim gets resized.
+vim.cmd("autocmd VimResized * wincmd =")
+
+-- update a buffer's contents on focus if it changed outside of vim.
+vim.cmd("autocmd FocusGained,BufEnter * :checktime")
+
+-- unset paste on insertleave.
+vim.cmd("autocmd InsertLeave * silent! set nopaste")
+
+-- format on save
+-- vim.cmd("autocmd BufWritePre <buffer> :lua vim.lsp.buf.format()")
+
+-- enable inlay hints automatically on rust buffers
+vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEnter" }, {
+  callback = function(args)
+    local bufnr = args.buf
+    if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+  end,
+})
+
+-- on hold, show diagnostics in a float; close when moving
+-- vim.api.nvim_create_autocmd({ "BufWritePre", "CursorHoldI" }, {
+--   callback = function(args)
+--     vim.diagnostic.open_float(nil, {
+--       focusable = false,
+--       border = "rounded",
+--       source = "if_many",
+--       scope = "cursor",
+--     })
+--   end,
+-- })
+
+-- format on save
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  callback = function()
+    vim.lsp.buf.format({ async = true })
+  end,
+})
+
+-- completion
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 require("luasnip.loaders.from_vscode").lazy_load()
@@ -333,9 +358,9 @@ cmp.setup({
     end,
   },
   mapping = cmp.mapping.preset.insert({
-    ["<C-Space>"] = cmp.mapping.complete(),
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+    ["<C-x>"] = cmp.mapping.complete(),
+    ["<CR>"]  = cmp.mapping.confirm({ select = true }),
+    ["<C-n>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
@@ -344,25 +369,7 @@ cmp.setup({
         fallback()
       end
     end, { "i", "s" }),
-    ["<C-j>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<C-k>"] = cmp.mapping(function(fallback)
+    ["<C-p>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
       elseif luasnip.jumpable(-1) then
@@ -549,27 +556,24 @@ telescope.setup {
         ["<C-s>"] = actions.cycle_previewers_next,
         ["<C-a>"] = actions.cycle_previewers_prev,
         ["<Esc>"] = actions.close,
-        ["<A-j>"] = actions.preview_scrolling_down,
-        ["<A-k>"] = actions.preview_scrolling_up,
+        ["<A-n>"] = actions.preview_scrolling_down,
+        ["<A-p>"] = actions.preview_scrolling_up,
         ["<C-d>"] = actions.delete_buffer + actions.move_to_top,
-        ["<C-j>"] = actions.move_selection_next,
-        ["<C-k>"] = actions.move_selection_previous,
+        -- ["<C-j>"] = actions.move_selection_next,
+        -- ["<C-k>"] = actions.move_selection_previous,
         ["<C-u>"] = false,
-        ["<M-p>"] = action_layout.toggle_preview
+        -- ["<C-t>"] = action_layout.toggle_preview
       },
     },
   },
 }
+-- README: fidget was greatly slowing down nvim
 -- telescope.load_extension("fidget")
-
-vim.api.nvim_set_keymap('n', '<C-p>', '<cmd>lua require("telescope.builtin").find_files()<CR>',
-  { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>f', '<cmd>lua require("telescope.builtin").live_grep()<CR>',
-  { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>b', '<cmd>lua require("telescope.builtin").buffers()<CR>',
-  { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>',
-  { noremap = true, silent = true })
+local key_map_opts = { noremap = true, silent = true }
+vim.keymap.set('n', '<leader>f', '<cmd>lua require("telescope.builtin").find_files()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>/', '<cmd>lua require("telescope.builtin").live_grep()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>', key_map_opts)
 
 -- lualine
 
