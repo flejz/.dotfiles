@@ -101,6 +101,9 @@ vim.keymap.set('n', '<F7>', ':set list!<CR>', { noremap = true })
 vim.keymap.set("n", "<leader>c", "<S-v>gc", { remap = true })
 vim.keymap.set("v", "<leader>c", "gc", { remap = true })
 
+-- terminal exit
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { noremap = true })
+
 -- lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -256,26 +259,15 @@ vim.g.rustaceanvim = {
     capabilities = capabilities,
     default_settings = {
       ["rust-analyzer"] = {
-        cargo = {
-          allFeatures = true,
-          allTargets = false,
-        },
-        -- check = {
-        --   allTargets = false,
-        --   extraArgs = { "--no-deps" },
+        -- cargo = {
+        --   allFeatures = true,
+        --   allTargets = true,
         -- },
+        check = {
+          --   allTargets = false,
+          command = "check",
+        },
         checkOnSave = true,
-        -- inlayHints = {
-        --   typeHints = { enable = true },
-        --   parameterHints = { enable = true },
-        --   chainingHints = { enable = true },
-        --   closureReturnTypeHints = { enable = true },
-        --   lifetimeElisionHints = { enable = true, useParameterNames = true },
-        --   reborrowHints = { enable = true },
-        -- },
-        diagnostics = {
-          disabled = { "inactive-code" },
-        },
       },
     },
   },
@@ -290,8 +282,6 @@ vim.g.rustaceanvim = {
 
   -- dap (codelldb) is auto-detected below via mason-nvim-dap
 }
---
-
 
 -- color scheme
 vim.cmd("colorscheme vscode")
@@ -342,7 +332,7 @@ vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEn
 -- format on save
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   callback = function()
-    vim.lsp.buf.format({ async = true })
+    vim.lsp.buf.format()
   end,
 })
 
@@ -594,3 +584,4 @@ lualine.setup {
     lualine_z = { 'encoding', 'filetype' },
   },
 }
+
