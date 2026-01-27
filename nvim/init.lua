@@ -151,19 +151,22 @@ require("lazy").setup({
   { "nvim-lua/plenary.nvim" },
   { "j-hui/fidget.nvim" },
   { "numToStr/Comment.nvim" },
-
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-mini/mini.icons',
+    },
+    ft = { "markdown", "md", "AgenticChat", "codecompanion" },
+  },
 
   -- dap (debugging)
   { "mfussenegger/nvim-dap" },
 
   -- theme
   { "Mofiqul/vscode.nvim" },
+
   -- rendering
-  {
-    'MeanderingProgrammer/render-markdown.nvim',
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.icons' }, -- if you use standalone mini plugins
-    ft = { "markdown", "md", "AgenticChat", "codecompanion" },
-  },
 
   -- ai
   {
@@ -171,11 +174,15 @@ require("lazy").setup({
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
+      "franco-ruggeri/codecompanion-spinner.nvim",
     },
     opts = {
       -- NOTE: The log_level is in `opts.opts`
       opts = {
         log_level = "DEBUG", -- or "TRACE"
+      },
+      extensions = {
+        spinner = {},
       },
     },
   },
@@ -563,27 +570,66 @@ require('lualine').setup({
   },
 })
 
--- comment
+-- ui and niceties
 require('Comment').setup()
 
+require('render-markdown').setup({
+  render_modes = true,
+  anti_conceal = {
+    enabled = false,
+  },
+})
+
+-- refresh render-markdown when codecompanion finishes streaming
+vim.api.nvim_create_autocmd("User", {
+  pattern = "CodeCompanionChat*",
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.bo[buf].filetype == "codecompanion" then
+      vim.schedule(function()
+        local rm = require("render-markdown")
+        rm.buf_disable()
+        rm.buf_enable()
+      end)
+    end
+  end,
+})
+
 -- ai
+-- load claude oauth token from credentials file
+local function load_claude_oauth_token()
+  local creds_path = vim.fn.expand("~/.claude/.credentials.json")
+  local file = io.open(creds_path, "r")
+  if file then
+    local content = file:read("*a")
+    file:close()
+    local ok, creds = pcall(vim.json.decode, content)
+    if ok and creds.claudeAiOauth and creds.claudeAiOauth.accessToken then
+      vim.env.CLAUDE_CODE_OAUTH_TOKEN = creds.claudeAiOauth.accessToken
+    end
+  end
+end
+load_claude_oauth_token()
+
 require("codecompanion").setup({
   interactions = {
     chat = {
-      adapter = "anthropic",
-      model = "claude-sonnet-4-20250514"
+      opts = {
+        completion_provider = "nvim-cmp", -- blink|cmp|coc|default
+      }
+    }
+  },
+  strategies = {
+    chat = {
+      adapter = "claude_code",
     },
-    -- Or, just specify the adapter by name
     inline = {
-      adapter = "anthropic",
+      adapter = "githubmodels",
     },
     cmd = {
-      adapter = "anthropic",
-    },
-    background = {
-      adapter = {
-        adapter = "anthropic",
-      },
+      adapter = "githubmodels",
     },
   },
 })
+
+vim.keymap.set({ "n", "v" }, "<C-\\>", "<cmd>CodeCompanionChat Toggle<CR>", { desc = "Toggle CodeCompanion Chat" })
