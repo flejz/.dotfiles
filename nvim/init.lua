@@ -98,8 +98,8 @@ vim.keymap.set('n', '<F5>', ':setlocal spell!<CR>', { noremap = true })
 vim.keymap.set('n', '<F7>', ':set list!<CR>', { noremap = true })
 
 -- comment
-vim.keymap.set("n", "<leader>c", "<S-v>gc", { remap = true })
-vim.keymap.set("v", "<leader>c", "gc", { remap = true })
+-- vim.keymap.set("n", "<leader>c", "<S-v>gc", { remap = true })
+-- vim.keymap.set("v", "<leader>c", "gc", { remap = true })
 
 -- terminal exit
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { noremap = true })
@@ -150,44 +150,70 @@ require("lazy").setup({
   { "nvim-treesitter/nvim-treesitter",  build = ":TSUpdate" },
   { "nvim-lua/plenary.nvim" },
   { "j-hui/fidget.nvim" },
+  { "numToStr/Comment.nvim" },
+
 
   -- dap (debugging)
   { "mfussenegger/nvim-dap" },
 
   -- theme
   { "Mofiqul/vscode.nvim" },
+  -- rendering
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.icons' }, -- if you use standalone mini plugins
+    ft = { "markdown", "md", "AgenticChat", "codecompanion" },
+  },
 
   -- ai
   {
-    "carlos-algms/agentic.nvim",
-
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
     opts = {
-      -- Available by default: "claude-acp" | "gemini-acp" | "codex-acp" | "opencode-acp" | "cursor-acp"
-      provider = "claude-acp", -- setting the name here is all you need to get started
+      -- NOTE: The log_level is in `opts.opts`
+      opts = {
+        log_level = "DEBUG", -- or "TRACE"
+      },
     },
+  },
+  -- {
+  --   "carlos-algms/agentic.nvim",
+  --   dependencies = {
+  --     "hakonharnes/img-clip.nvim",
+  --   },
+  --
+  --   opts = {
+  --     -- Available by default: "claude-acp" | "gemini-acp" | "codex-acp" | "opencode-acp" | "cursor-acp"
+  --     provider = "claude-acp", -- setting the name here is all you need to get started
+  --   },
+  --
+  --   -- these are just suggested keymaps; customize as desired
+  --   keys = {
+  --     {
+  --       "<C-\\>",
+  --       function() require("agentic").toggle() end,
+  --       mode = { "n", "v", "i" },
+  --       desc = "Toggle Agentic Chat"
+  --     },
+  --     {
+  --       "<C-'>",
+  --       function() require("agentic").add_selection_or_file_to_context() end,
+  --       mode = { "n", "v" },
+  --       desc = "Add file or selection to Agentic to Context"
+  --     },
+  --     {
+  --       "<C-,>",
+  --       function() require("agentic").new_session() end,
+  --       mode = { "n", "v", "i" },
+  --       desc = "New Agentic Session"
+  --     },
+  --   },
+  -- },
 
-    -- these are just suggested keymaps; customize as desired
-    keys = {
-      {
-        "<C-\\>",
-        function() require("agentic").toggle() end,
-        mode = { "n", "v", "i" },
-        desc = "Toggle Agentic Chat"
-      },
-      {
-        "<C-'>",
-        function() require("agentic").add_selection_or_file_to_context() end,
-        mode = { "n", "v" },
-        desc = "Add file or selection to Agentic to Context"
-      },
-      {
-        "<C-,>",
-        function() require("agentic").new_session() end,
-        mode = { "n", "v", "i" },
-        desc = "New Agentic Session"
-      },
-    },
-  }
+
 })
 
 -- mason setup
@@ -222,7 +248,7 @@ local on_attach = function(_, bufnr)
     vim.diagnostic.goto_next()
     vim.diagnostic.open_float(nil, { scope = "cursor" })
   end, "Next Diagnostic")
-  -- map("n", "<leader>", function() vim.lsp.buf.format({ async = true }) end, "Format")
+  map("n", "<leader>F", function() vim.lsp.buf.format({ async = true }) end, "Format")
 end
 
 
@@ -391,7 +417,7 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   end,
 })
 
--- completion
+-- completionmain
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 require("luasnip.loaders.from_vscode").lazy_load()
@@ -486,132 +512,13 @@ vim.diagnostic.config({
 })
 
 -- fidget
-local fidget = require("fidget")
-fidget.setup({
-  -- Options related to LSP progress subsystem
-  progress = {
-    poll_rate = 0,                -- How and when to poll for progress messages
-    suppress_on_insert = false,   -- Suppress new messages while in insert mode
-    ignore_done_already = false,  -- Ignore new tasks that are already complete
-    ignore_empty_message = false, -- Ignore new tasks that don't contain a message
-    clear_on_detach =             -- Clear notification group when LSP server detaches
-        function(client_id)
-          local client = vim.lsp.get_client_by_id(client_id)
-          return client and client.name or nil
-        end,
-    notification_group = -- How to get a progress message's notification group key
-        function(msg) return msg.lsp_client.name end,
-    ignore = {},         -- List of LSP servers to ignore
-
-    -- Options related to how LSP progress messages are displayed as notifications
-    display = {
-      render_limit = 16, -- How many LSP messages to show at once
-      done_ttl = 3, -- How long a message should persist after completion
-      done_icon = "✔", -- Icon shown when all LSP progress tasks are complete
-      done_style = "Constant", -- Highlight group for completed LSP tasks
-      progress_ttl = math.huge, -- How long a message should persist when in progress
-      progress_icon = -- Icon shown when LSP progress tasks are in progress
-      { "dots" },
-      progress_style = -- Highlight group for in-progress LSP tasks
-      "WarningMsg",
-      group_style = "Title", -- Highlight group for group name (LSP server name)
-      icon_style = "Question", -- Highlight group for group icons
-      priority = 30, -- Ordering priority for LSP notification group
-      skip_history = true, -- Whether progress notifications should be omitted from history
-      format_message = -- How to format a progress message
-          require("fidget.progress.display").default_format_message,
-      format_annote = -- How to format a progress annotation
-          function(msg) return msg.title end,
-      format_group_name = -- How to format a progress notification group's name
-          function(group) return tostring(group) end,
-      overrides = { -- Override options from the default notification config
-        rust_analyzer = { name = "rust-analyzer" },
-      },
-    },
-
-    -- Options related to Neovim's built-in LSP client
-    lsp = {
-      progress_ringbuf_size = 0, -- Configure the nvim's LSP progress ring buffer size
-      log_handler = false,       -- Log `$/progress` handler invocations (for debugging)
-    },
-  },
-
-  -- Options related to notification subsystem
-  notification = {
-    poll_rate = 10,               -- How frequently to update and render notifications
-    filter = vim.log.levels.INFO, -- Minimum notifications level
-    history_size = 128,           -- Number of removed messages to retain in history
-    override_vim_notify = false,  -- Automatically override vim.notify() with Fidget
-    configs =                     -- How to configure notification groups when instantiated
-    { default = require("fidget.notification").default_config },
-    redirect =                    -- Conditionally redirect notifications to another backend
-        function(msg, level, opts)
-          if opts and opts.on_open then
-            return require("fidget.integration.nvim-notify").delegate(msg, level, opts)
-          end
-        end,
-
-    -- Options related to how notifications are rendered as text
-    view = {
-      stack_upwards = true,    -- Display notification items from bottom to top
-      align = "message",       -- Indent messages longer than a single line
-      reflow = false,          -- Reflow (wrap) messages wider than notification window
-      icon_separator = " ",    -- Separator between group name and icon
-      group_separator = "---", -- Separator between notification groups
-      group_separator_hl =     -- Highlight group used for group separator
-      "Comment",
-      line_margin = 1,         -- Spaces to pad both sides of each non-empty line
-      render_message =         -- How to render notification messages
-          function(msg, cnt)
-            return cnt == 1 and msg or string.format("(%dx) %s", cnt, msg)
-          end,
-    },
-
-    -- Options related to the notification window and buffer
-    window = {
-      normal_hl = "Comment", -- Base highlight group in the notification window
-      winblend = 100,        -- Background color opacity in the notification window
-      border = "none",       -- Border around the notification window
-      zindex = 45,           -- Stacking priority of the notification window
-      max_width = 0,         -- Maximum width of the notification window
-      max_height = 0,        -- Maximum height of the notification window
-      x_padding = 1,         -- Padding from right edge of window boundary
-      y_padding = 0,         -- Padding from bottom edge of window boundary
-      align = "bottom",      -- How to align the notification window
-      relative = "editor",   -- What the notification window position is relative to
-      tabstop = 8,           -- Width of each tab character in the notification window
-      avoid = {}             -- Filetypes the notification window should avoid
-      -- e.g., { "aerial", "NvimTree", "neotest-summary" }
-    },
-  },
-
-  -- Options related to integrating with other plugins
-  integration = {
-    ["nvim-tree"] = {
-      enable = true, -- Integrate with nvim-tree/nvim-tree.lua (if installed)
-      -- DEPRECATED; use notification.window.avoid = { "NvimTree" }
-    },
-    ["xcodebuild-nvim"] = {
-      enable = true, -- Integrate with wojciech-kulik/xcodebuild.nvim (if installed)
-      -- DEPRECATED; use notification.window.avoid = { "TestExplorer" }
-    },
-  },
-
-  -- Options related to logging
-  logger = {
-    level = vim.log.levels.WARN, -- Minimum logging level
-    max_size = 10000,            -- Maximum log file size, in KB
-    float_precision = 0.01,      -- Limit the number of decimals displayed for floats
-    path =                       -- Where Fidget writes its logs to
-        string.format("%s/fidget.nvim.log", vim.fn.stdpath("cache")),
-  },
-})
+require("fidget").setup()
 
 
 -- telescope
 local telescope = require('telescope')
 local actions = require('telescope.actions')
-local action_layout = require("telescope.actions.layout")
+-- local action_layout = require("telescope.actions.layout")
 
 telescope.setup {
   defaults = {
@@ -631,8 +538,7 @@ telescope.setup {
     },
   },
 }
--- README: fidget was greatly slowing down nvim
--- telescope.load_extension("fidget")
+
 local key_map_opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>f', '<cmd>lua require("telescope.builtin").find_files()<CR>', key_map_opts)
 vim.keymap.set('n', '<leader>/', '<cmd>lua require("telescope.builtin").live_grep()<CR>', key_map_opts)
@@ -640,9 +546,7 @@ vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers(
 vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>', key_map_opts)
 
 -- lualine
-
-local lualine = require('lualine')
-lualine.setup {
+require('lualine').setup({
   options = {
     icons_enabled = false,
     component_separators = { left = '', right = '' },
@@ -653,9 +557,33 @@ lualine.setup {
     lualine_a = { 'mode' },
     lualine_b = { 'branch' },
     lualine_c = { { 'filename', path = 1 } },
-    lualine_x = { { 'diagnostics' } },
+    lualine_x = { 'lsp_status', { 'diagnostics' } },
     lualine_y = { 'progress', 'location' },
-    lualine_z = { 'encoding', 'filetype' },
+    lualine_z = { 'encoding', 'filetype', { "os.date('%H:%M')" } },
   },
-}
+})
 
+-- comment
+require('Comment').setup()
+
+-- ai
+require("codecompanion").setup({
+  interactions = {
+    chat = {
+      adapter = "anthropic",
+      model = "claude-sonnet-4-20250514"
+    },
+    -- Or, just specify the adapter by name
+    inline = {
+      adapter = "anthropic",
+    },
+    cmd = {
+      adapter = "anthropic",
+    },
+    background = {
+      adapter = {
+        adapter = "anthropic",
+      },
+    },
+  },
+})

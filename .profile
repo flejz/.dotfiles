@@ -2,6 +2,10 @@
 source "$HOME/.dotfiles/.functionsrc"
 source "$HOME/.dotfiles/nvim/.nvimrc"
 
+# cedilha support
+export GTK_IM_MODULE=cedilla
+export QT_IM_MODULE=cedilla
+
 # load rc
 RC_PATH=$(detect_rc)
 if [ -f "$RC_PATH" ]; then
