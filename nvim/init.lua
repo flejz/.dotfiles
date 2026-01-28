@@ -159,6 +159,26 @@ require("lazy").setup({
     },
     ft = { "markdown", "md", "AgenticChat", "codecompanion" },
   },
+  {
+    "kdheepak/lazygit.nvim",
+    lazy = true,
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    -- optional for floating window border decoration
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    -- setting the keybinding for LazyGit with 'keys' is recommended in
+    -- order to load the plugin when the command is run for the first time
+    keys = {
+      { "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" }
+    }
+  },
 
   -- dap (debugging)
   { "mfussenegger/nvim-dap" },
@@ -289,7 +309,12 @@ vim.lsp.enable("gopls")
 vim.lsp.config["clangd"] = {
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "clangd", "--background-index", "--clang-tidy" },
+  cmd = {
+    "clangd",
+    "--background-index",
+    "--clang-tidy",
+    "--header-insertion=iwyu",
+  },
 }
 vim.lsp.enable("clangd")
 
@@ -547,10 +572,38 @@ telescope.setup {
 }
 
 local key_map_opts = { noremap = true, silent = true }
+
+-- File & Buffer pickers
 vim.keymap.set('n', '<leader>f', '<cmd>lua require("telescope.builtin").find_files()<CR>', key_map_opts)
 vim.keymap.set('n', '<leader>/', '<cmd>lua require("telescope.builtin").live_grep()<CR>', key_map_opts)
 vim.keymap.set('n', '<leader>b', '<cmd>lua require("telescope.builtin").buffers()<CR>', key_map_opts)
 vim.keymap.set('n', '<leader>h', '<cmd>lua require("telescope.builtin").help_tags()<CR>', key_map_opts)
+
+-- LSP pickers
+vim.keymap.set('n', '<leader>ls', '<cmd>lua require("telescope.builtin").lsp_document_symbols()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>lS', '<cmd>lua require("telescope.builtin").lsp_workspace_symbols()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>lw', '<cmd>lua require("telescope.builtin").lsp_dynamic_workspace_symbols()<CR>',
+  key_map_opts)
+vim.keymap.set('n', '<leader>lr', '<cmd>lua require("telescope.builtin").lsp_references()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>ld', '<cmd>lua require("telescope.builtin").lsp_definitions()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>li', '<cmd>lua require("telescope.builtin").lsp_implementations()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>lt', '<cmd>lua require("telescope.builtin").lsp_type_definitions()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>lD', '<cmd>lua require("telescope.builtin").diagnostics()<CR>', key_map_opts)
+
+-- Additional useful pickers
+vim.keymap.set('n', '<leader>fh', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>fw', '<cmd>lua require("telescope.builtin").grep_string()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>fb', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>fc', '<cmd>lua require("telescope.builtin").commands()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>fk', '<cmd>lua require("telescope.builtin").keymaps()<CR>', key_map_opts)
+
+-- Git pickers
+vim.keymap.set('n', '<leader>gc', '<cmd>lua require("telescope.builtin").git_commits()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>gb', '<cmd>lua require("telescope.builtin").git_branches()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>gs', '<cmd>lua require("telescope.builtin").git_status()<CR>', key_map_opts)
+
+-- Treesitter picker (alternative to LSP symbols)
+vim.keymap.set('n', '<leader>ts', '<cmd>lua require("telescope.builtin").treesitter()<CR>', key_map_opts)
 
 -- lualine
 require('lualine').setup({
@@ -612,6 +665,11 @@ end
 load_claude_oauth_token()
 
 require("codecompanion").setup({
+  display = {
+    action_palette = {
+      provider = "telescope", -- use telescope for action palette
+    },
+  },
   interactions = {
     chat = {
       opts = {
@@ -632,4 +690,11 @@ require("codecompanion").setup({
   },
 })
 
+
+-- CodeCompanion keybindings
 vim.keymap.set({ "n", "v" }, "<C-\\>", "<cmd>CodeCompanionChat Toggle<CR>", { desc = "Toggle CodeCompanion Chat" })
+vim.keymap.set({ "n", "v" }, "<leader>cf", "<cmd>CodeCompanionActions<CR>", { desc = "CodeCompanion Actions" })
+vim.keymap.set({ "n", "v" }, "<leader>ca", "<cmd>CodeCompanionChat Add<CR>", { desc = "Add to CodeCompanion Chat" })
+vim.keymap.set("n", "<leader>cc", "<cmd>CodeCompanionChat<CR>", { desc = "Open CodeCompanion Chat" })
+vim.keymap.set("n", "<leader>ci", "<cmd>CodeCompanion<CR>", { desc = "CodeCompanion Inline" })
+vim.keymap.set("n", "<leader>ct", "<cmd>Telescope codecompanion<CR>", { desc = "CodeCompanion Telescope" })
