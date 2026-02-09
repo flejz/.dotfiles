@@ -146,7 +146,6 @@ require("lazy").setup({
   { "nvim-lua/plenary.nvim" },
   { "BurntSushi/ripgrep" },
   { "hoob3rt/lualine.nvim" },
-  { "sheerun/vim-polyglot" },
   { "nvim-treesitter/nvim-treesitter",  build = ":TSUpdate" },
   { "nvim-lua/plenary.nvim" },
   { "j-hui/fidget.nvim" },
@@ -409,9 +408,9 @@ vim.api.nvim_set_hl(0, "LineNr", { fg = "#5A5A5A", bg = "#030303" })
 vim.api.nvim_set_hl(0, "TabLineSel", { bg = "#030303" })
 vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#A3A3A3" })
 
--- enable syntax highlighting.
-vim.cmd("filetype plugin indent on")
-vim.cmd("syntax on")
+-- NOTE: "filetype plugin indent on" is default in neovim 0.8+
+-- NOTE: "syntax on" removed - treesitter handles highlighting,
+--       having both causes the old regex engine to also load (slow)
 
 -- auto-resize splits when vim gets resized.
 vim.cmd("autocmd VimResized * wincmd =")
@@ -426,7 +425,7 @@ vim.cmd("autocmd InsertLeave * silent! set nopaste")
 -- vim.cmd("autocmd BufWritePre <buffer> :lua vim.lsp.buf.format()")
 
 -- enable inlay hints automatically on rust buffers
-vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEnter" }, {
+vim.api.nvim_create_autocmd({ "LspAttach", "BufEnter" }, {
   callback = function(args)
     local bufnr = args.buf
     if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
@@ -435,12 +434,6 @@ vim.api.nvim_create_autocmd({ "LspAttach", "TextChanged", "TextChangedI", "BufEn
   end,
 })
 
--- on hold, show diagnostics in a float
-vim.api.nvim_create_autocmd("CursorHold", {
-  callback = function()
-    vim.diagnostic.open_float(nil, { scope = "cursor" })
-  end,
-})
 
 -- format on save
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
@@ -489,7 +482,7 @@ cmp.setup({
 })
 
 -- treesitter
-require("nvim-treesitter").setup({
+require("nvim-treesitter.configs").setup({
   ensure_installed = { "lua", "rust", "toml", "json", "markdown" },
   highlight = { enable = true },
   indent = { enable = true },
@@ -544,7 +537,28 @@ vim.diagnostic.config({
 })
 
 -- fidget
-require("fidget").setup()
+require("fidget").setup({
+  progress = {
+    poll_rate = 0,
+    display = {
+      skip_history = true,
+      done_ttl = 3,
+      progress_ttl = math.huge,
+    },
+    lsp = {
+      progress_ringbuf_size = 0,
+      log_handler = false,
+    },
+  },
+  notification = {
+    poll_rate = 10,
+    filter = vim.log.levels.INFO,
+    override_vim_notify = false,
+    window = {
+      winblend = 100,
+    },
+  },
+})
 
 
 -- telescope
@@ -617,7 +631,7 @@ require('lualine').setup({
     lualine_a = { 'mode' },
     lualine_b = { 'branch' },
     lualine_c = { { 'filename', path = 1 } },
-    lualine_x = { 'lsp_status', { 'diagnostics' } },
+    lualine_x = { { 'diagnostics' } },
     lualine_y = { 'progress', 'location' },
     lualine_z = { 'encoding', 'filetype', { "os.date('%H:%M')" } },
   },
