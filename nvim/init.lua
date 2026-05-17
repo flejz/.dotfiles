@@ -481,12 +481,8 @@ cmp.setup({
   },
 })
 
--- treesitter
-require("nvim-treesitter.configs").setup({
-  ensure_installed = { "lua", "rust", "toml", "json", "markdown" },
-  highlight = { enable = true },
-  indent = { enable = true },
-})
+-- treesitter (new API: highlight/indent handled by neovim natively)
+require("nvim-treesitter").install({ "lua", "rust", "toml", "json", "markdown" })
 
 -- dap (debugging)
 local mason_dap = require("mason-nvim-dap")
