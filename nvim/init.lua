@@ -601,11 +601,11 @@ vim.keymap.set('n', '<leader>lt', '<cmd>lua require("telescope.builtin").lsp_typ
 vim.keymap.set('n', '<leader>lD', '<cmd>lua require("telescope.builtin").diagnostics()<CR>', key_map_opts)
 
 -- Additional useful pickers
-vim.keymap.set('n', '<leader>fh', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', key_map_opts)
-vim.keymap.set('n', '<leader>fw', '<cmd>lua require("telescope.builtin").grep_string()<CR>', key_map_opts)
-vim.keymap.set('n', '<leader>fb', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<CR>', key_map_opts)
-vim.keymap.set('n', '<leader>fc', '<cmd>lua require("telescope.builtin").commands()<CR>', key_map_opts)
-vim.keymap.set('n', '<leader>fk', '<cmd>lua require("telescope.builtin").keymaps()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>th', '<cmd>lua require("telescope.builtin").oldfiles()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>tw', '<cmd>lua require("telescope.builtin").grep_string()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>tb', '<cmd>lua require("telescope.builtin").current_buffer_fuzzy_find()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>tc', '<cmd>lua require("telescope.builtin").commands()<CR>', key_map_opts)
+vim.keymap.set('n', '<leader>tk', '<cmd>lua require("telescope.builtin").keymaps()<CR>', key_map_opts)
 
 -- Git pickers
 vim.keymap.set('n', '<leader>gc', '<cmd>lua require("telescope.builtin").git_commits()<CR>', key_map_opts)
