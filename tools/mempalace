@@ -1,0 +1,9 @@
+#!/bin/bash
+case "$1" in
+  hook|instructions)
+    python -m mempalace "$@"
+    ;;
+  *)
+    ssh palace-host /root/.local/bin/mempalace "$@"
+    ;;
+esac

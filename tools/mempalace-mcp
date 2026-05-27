@@ -1,0 +1,2 @@
+#!/bin/bash
+ssh palace-host /root/.local/bin/mempalace-mcp "$@"
