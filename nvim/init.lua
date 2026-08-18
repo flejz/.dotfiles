@@ -9,7 +9,6 @@ vim.opt.backspace:append({ 'indent', 'eol', 'start' })
 vim.opt.clipboard = 'unnamedplus'
 vim.opt.cmdheight = 2
 vim.opt.complete:append('kspell')
-vim.opt.completeopt = { 'menuone', 'longest' }
 vim.opt.encoding = 'utf-8'
 vim.opt.expandtab = true
 vim.opt.smarttab = true
@@ -24,7 +23,6 @@ vim.opt.history = 1000
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.ignorecase = true
-vim.opt.incsearch = true
 vim.opt.laststatus = 2
 vim.opt.linespace = 4
 vim.opt.mmp = 5000
@@ -46,7 +44,6 @@ vim.opt.showcmd = true
 vim.opt.showmatch = true
 vim.opt.shortmess:append('c')
 vim.opt.showmode = true
-vim.opt.signcolumn = 'yes'
 vim.opt.softtabstop = 2
 vim.opt.spelllang = 'en_us'
 vim.opt.splitbelow = true
@@ -57,7 +54,6 @@ vim.opt.textwidth = 0
 vim.opt.ttimeout = true
 vim.opt.timeoutlen = 1000
 vim.opt.ttimeoutlen = 0
-vim.opt.updatetime = 300
 vim.opt.virtualedit = 'block'
 vim.opt.wildmenu = true
 vim.opt.wildmode = 'full'
@@ -66,11 +62,12 @@ vim.opt.wildmode = 'full'
 vim.o.termguicolors = true
 vim.o.number = true
 vim.o.relativenumber = false
-vim.o.updatetime = 250
 vim.o.signcolumn = "yes"
 vim.o.background = "dark"
 vim.o.updatetime = 250 -- time before the popup
 vim.o.completeopt = "menu,menuone,noselect"
+
+-- NOTE (linux): clipboard='unnamedplus' requires xclip or wl-clipboard installed
 
 -- basic mappings
 -- config handling
@@ -106,7 +103,7 @@ vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { noremap = true })
 
 -- lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git",
     "clone",
@@ -137,17 +134,20 @@ require("lazy").setup({
   -- completion
   { "hrsh7th/nvim-cmp" },
   { "hrsh7th/cmp-nvim-lsp" },
-  { "L3MON4D3/LuaSnip" },
   { "saadparwaiz1/cmp_luasnip" },
   -- { "rafamadriz/friendly-snippets" },
 
   -- syntax & ui niceties
   { "nvim-telescope/telescope.nvim" },
   { "nvim-lua/plenary.nvim" },
-  { "BurntSushi/ripgrep" },
+  -- NOTE: BurntSushi/ripgrep is a system binary, not a plugin. Install via OS pkg manager
+  --   windows: winget install BurntSushi.ripgrep.MSVC   linux: apt/pacman install ripgrep
   { "hoob3rt/lualine.nvim" },
-  { "nvim-treesitter/nvim-treesitter",  build = ":TSUpdate" },
-  { "nvim-lua/plenary.nvim" },
+  -- NOTE: pinned to the master branch on purpose. the main branch rewrote the
+  -- api (no more .configs.setup) and requires neovim 0.12 for vim.list; on
+  -- 0.11.x it dies in config.lua with "attempt to index field 'list'".
+  -- revisit together with a neovim upgrade.
+  { "nvim-treesitter/nvim-treesitter",  branch = "master", build = ":TSUpdate" },
   { "j-hui/fidget.nvim" },
   { "numToStr/Comment.nvim" },
   {
@@ -249,6 +249,9 @@ require("mason-lspconfig").setup({
     "lua_ls",
   },
   automatic_installation = true,
+  -- rustaceanvim owns the rust client; letting mason-lspconfig enable
+  -- rust_analyzer too would start a second one on every rust buffer.
+  automatic_enable = { exclude = { "rust_analyzer" } },
 })
 
 -- capabilities for nvim-cmp
@@ -267,11 +270,11 @@ local on_attach = function(_, bufnr)
   map({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, "Code Action")
   map("n", "<leader>e", vim.diagnostic.open_float, "Line Diagnostics")
   map("n", "[d", function()
-    vim.diagnostic.goto_prev()
+    vim.diagnostic.jump({ count = -1 })
     vim.diagnostic.open_float(nil, { scope = "cursor" })
   end, "Prev Diagnostic")
   map("n", "]d", function()
-    vim.diagnostic.goto_next()
+    vim.diagnostic.jump({ count = 1 })
     vim.diagnostic.open_float(nil, { scope = "cursor" })
   end, "Next Diagnostic")
   map("n", "<leader>F", function() vim.lsp.buf.format({ async = true }) end, "Format")
@@ -376,15 +379,43 @@ vim.g.rustaceanvim = {
     capabilities = capabilities,
     default_settings = {
       ["rust-analyzer"] = {
-        -- cargo = {
-        --   allFeatures = true,
-        --   allTargets = true,
-        -- },
+        cargo = {
+          -- share target/debug with make and bacon instead of keeping a private
+          -- target/rust-analyzer. the toolchain and rustflags are part of the unit
+          -- fingerprint, so they must match the non-release branch of the project
+          -- Makefile or r-a recompiles everything make just built. check.extraEnv
+          -- inherits this, so flycheck fingerprints the same way.
+          extraEnv = {
+            RUSTUP_TOOLCHAIN = "nightly",
+            CARGO_BUILD_RUSTFLAGS = "-Z threads=6",
+          },
+        },
         check = {
-          --   allTargets = false,
           command = "check",
+          -- skip tests/benches/examples + dev-deps on save (tests still build via `make test`)
+          allTargets = false,
         },
         checkOnSave = true,
+        procMacro = { enable = true },
+        -- nightly rustfmt for project's import grouping
+        rustfmt = {
+          overrideCommand = { "rustup", "run", "nightly", "rustfmt", "--edition", "2024" },
+        },
+        -- skip indexing heavy dirs in this workspace
+        files = {
+          excludeDirs = {
+            ".cache",
+            "target",
+            "embedded-web-app/node_modules",
+            "embedded-web-app/dist",
+            ".git",
+          },
+        },
+        -- speed: smaller lru, no unneeded scans
+        lru = { capacity = 256 },
+        diagnostics = {
+          experimental = { enable = false },
+        },
       },
     },
   },
@@ -415,8 +446,23 @@ vim.api.nvim_set_hl(0, "LspInlayHint", { fg = "#A3A3A3" })
 -- auto-resize splits when vim gets resized.
 vim.cmd("autocmd VimResized * wincmd =")
 
--- update a buffer's contents on focus if it changed outside of vim.
-vim.cmd("autocmd FocusGained,BufEnter * :checktime")
+-- detect external file changes (claude edits, git pulls, formatters)
+-- triggers checktime on focus, buffer enter, cursor idle, terminal exit
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "TermLeave" }, {
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" and vim.bo.buftype == "" then
+      vim.cmd("checktime")
+    end
+  end,
+})
+-- notify when a buffer was reloaded from disk
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  pattern = "*",
+  callback = function()
+    vim.notify("File changed on disk. Buffer reloaded.", vim.log.levels.WARN)
+  end,
+})
 
 -- unset paste on insertleave.
 vim.cmd("autocmd InsertLeave * silent! set nopaste")
@@ -424,21 +470,34 @@ vim.cmd("autocmd InsertLeave * silent! set nopaste")
 -- format on save
 -- vim.cmd("autocmd BufWritePre <buffer> :lua vim.lsp.buf.format()")
 
--- enable inlay hints automatically on rust buffers
-vim.api.nvim_create_autocmd({ "LspAttach", "BufEnter" }, {
+-- enable inlay hints only when an LSP client that supports them attaches
+vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
-    if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
-      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.server_capabilities.inlayHintProvider then
+      if not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) then
+        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+      end
     end
   end,
 })
 
 
--- format on save
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  callback = function()
-    vim.lsp.buf.format()
+-- format on save (rust uses nightly rustfmt via the r-a override above).
+-- guarded: real files only, and only when a client actually advertises
+-- formatting. without this it fires on scratch buffers and logs
+-- "Format request failed, no matching language servers".
+vim.api.nvim_create_autocmd("BufWritePre", {
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= "" then
+      return
+    end
+    local clients = vim.lsp.get_clients({ bufnr = args.buf, method = "textDocument/formatting" })
+    if #clients == 0 then
+      return
+    end
+    vim.lsp.buf.format({ bufnr = args.buf, async = false, timeout_ms = 2000 })
   end,
 })
 
@@ -481,13 +540,19 @@ cmp.setup({
   },
 })
 
--- treesitter (new API: highlight/indent handled by neovim natively)
-require("nvim-treesitter").install({ "lua", "rust", "toml", "json", "markdown" })
+-- treesitter (master-branch api, see the pin note in the plugin spec)
+require("nvim-treesitter.configs").setup({
+  ensure_installed = { "lua", "rust", "toml", "json", "markdown" },
+  highlight = { enable = true },
+  indent = { enable = true },
+})
 
 -- dap (debugging)
 local mason_dap = require("mason-nvim-dap")
 mason_dap.setup({
-  ensure_installed = { "codelldb", "gopls", "clangd" },
+  -- debug adapters only. gopls/clangd are language servers and were silently
+  -- ignored here; go would want "delve".
+  ensure_installed = { "codelldb" },
   -- add custom per-adapter handlers here if needed
   -- handlers = {
   --   function(config) mason_dap.default_setup(config) end,
@@ -675,6 +740,13 @@ end
 load_claude_oauth_token()
 
 require("codecompanion").setup({
+  adapters = {
+    acp = {
+      claude_code = function()
+        return require("codecompanion.adapters").extend("claude_code")
+      end,
+    },
+  },
   display = {
     action_palette = {
       provider = "telescope", -- use telescope for action palette
@@ -685,7 +757,18 @@ require("codecompanion").setup({
       opts = {
         completion_provider = "nvim-cmp", -- blink|cmp|coc|default
       }
-    }
+    },
+    cli = {
+      agent = "claude_code",
+      agents = {
+        claude_code = {
+          cmd = "claude",
+          args = {},
+          description = "Claude Code CLI",
+          provider = "terminal",
+        },
+      },
+    },
   },
   strategies = {
     chat = {
