@@ -542,9 +542,17 @@ cmp.setup({
 -- treesitter. the main branch dropped `.configs.setup`: install() only fetches
 -- parsers, and highlight/indent became opt-in per buffer instead of global.
 -- it also compiles parsers with the tree-sitter cli rather than a bare c
--- compiler. on a fresh machine run `:MasonInstall tree-sitter-cli` once --
--- mason's bin dir is already on nvim's PATH, so no global install is needed.
--- without it every startup re-downloads parsers and fails at the build step.
+-- compiler. without it every startup re-downloads parsers and fails at the
+-- build step, so pull it in through mason: its bin dir is already on nvim's
+-- PATH, which keeps this off the system.
+-- refresh() first because on a cold start the package registry may not be
+-- downloaded yet, and get_package would throw.
+require("mason-registry").refresh(function()
+  local ok, pkg = pcall(require("mason-registry").get_package, "tree-sitter-cli")
+  if ok and not pkg:is_installed() then
+    pkg:install()
+  end
+end)
 local ts_langs = { "lua", "rust", "toml", "json", "markdown" }
 require("nvim-treesitter").install(ts_langs)
 vim.api.nvim_create_autocmd("FileType", {
