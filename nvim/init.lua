@@ -143,11 +143,10 @@ require("lazy").setup({
   -- NOTE: BurntSushi/ripgrep is a system binary, not a plugin. Install via OS pkg manager
   --   windows: winget install BurntSushi.ripgrep.MSVC   linux: apt/pacman install ripgrep
   { "hoob3rt/lualine.nvim" },
-  -- NOTE: pinned to the master branch on purpose. the main branch rewrote the
-  -- api (no more .configs.setup) and requires neovim 0.12 for vim.list; on
-  -- 0.11.x it dies in config.lua with "attempt to index field 'list'".
-  -- revisit together with a neovim upgrade.
-  { "nvim-treesitter/nvim-treesitter",  branch = "master", build = ":TSUpdate" },
+  -- NOTE: branch matters. master is archived and refuses neovim 0.12; main
+  -- needs 0.12 for vim.list. so the branch is pinned to the neovim we run,
+  -- not left to the repo default.
+  { "nvim-treesitter/nvim-treesitter",  branch = "main",   build = ":TSUpdate" },
   { "j-hui/fidget.nvim" },
   { "numToStr/Comment.nvim" },
   {
@@ -540,11 +539,21 @@ cmp.setup({
   },
 })
 
--- treesitter (master-branch api, see the pin note in the plugin spec)
-require("nvim-treesitter.configs").setup({
-  ensure_installed = { "lua", "rust", "toml", "json", "markdown" },
-  highlight = { enable = true },
-  indent = { enable = true },
+-- treesitter. the main branch dropped `.configs.setup`: install() only fetches
+-- parsers, and highlight/indent became opt-in per buffer instead of global.
+-- it also compiles parsers with the tree-sitter cli rather than a bare c
+-- compiler. on a fresh machine run `:MasonInstall tree-sitter-cli` once --
+-- mason's bin dir is already on nvim's PATH, so no global install is needed.
+-- without it every startup re-downloads parsers and fails at the build step.
+local ts_langs = { "lua", "rust", "toml", "json", "markdown" }
+require("nvim-treesitter").install(ts_langs)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = ts_langs,
+  callback = function(args)
+    -- pcall: the parser may not be downloaded yet on a cold start
+    pcall(vim.treesitter.start, args.buf)
+    vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end,
 })
 
 -- dap (debugging)
